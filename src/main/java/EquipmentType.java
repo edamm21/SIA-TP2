@@ -1,5 +1,7 @@
 public enum EquipmentType {
     HELMET,
+    ARMOR,
+    GLOVES,
     BOOTS,
-    ARMOUR
+    WEAPON
 }
