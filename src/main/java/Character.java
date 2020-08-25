@@ -96,4 +96,6 @@ public abstract class Character
 	{
 		return (getResistance() + getSkill()) * getHealth() * getDEM();
 	}
+	
+	public abstract double getPerformance();
 }

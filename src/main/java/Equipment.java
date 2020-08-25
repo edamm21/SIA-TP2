@@ -1,42 +1,42 @@
 public class Equipment {
 
     EquipmentType type;
-    float strength;
-    float agility;
-    float resistance;
-    float health;
-    float skill; // Pericia, me pareció la traducción más acorde
+    double strength;
+    double agility;
+    double resistance;
+    double health;
+    double skill;
 
-    public Equipment(EquipmentType type, float strength, float agility, float resistance, float health, float skill) {
+    public Equipment(EquipmentType type, double str, double ag, double res, double hp, double skl) {
         this.type = type;
-        this.strength = strength;
-        this.agility = agility;
-        this.resistance = resistance;
-        this.health = health;
-        this.skill = skill;
+        this.strength = str;
+        this.agility = ag;
+        this.resistance = res;
+        this.health = hp;
+        this.skill = skl;
     }
 
     public EquipmentType getType() {
         return type;
     }
 
-    public float getStrength() {
+    public double getStrength() {
         return strength;
     }
 
-    public float getAgility() {
+    public double getAgility() {
         return agility;
     }
 
-    public float getResistance() {
+    public double getResistance() {
         return resistance;
     }
 
-    public float getHealth() {
+    public double getHealth() {
         return health;
     }
 
-    public float getSkill() {
+    public double getSkill() {
         return skill;
     }
 }
