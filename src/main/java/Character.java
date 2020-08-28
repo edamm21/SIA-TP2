@@ -1,11 +1,11 @@
 public abstract class Character
 {
-	double height;
-	Equipment helmet;
-	Equipment armor;
-	Equipment gloves;
-	Equipment boots;
-	Equipment weapon;
+	private double height;
+	private Equipment helmet;
+	private Equipment armor;
+	private Equipment gloves;
+	private Equipment boots;
+	private Equipment weapon;
 	
 	public Character(double height, Equipment helmet, Equipment armor, Equipment gloves, Equipment boots, Equipment weapon)
 	{
@@ -72,11 +72,6 @@ public abstract class Character
 		return 100 * Math.tanh(0.01 * sum);
 	}
 	
-	public double getHeight()
-	{
-		return height;
-	}
-	
 	private double getATM()
 	{
 		return 0.7 - Math.pow(3*height - 5, 4) + Math.pow(3*height - 5, 2) + height/4;
@@ -98,4 +93,59 @@ public abstract class Character
 	}
 	
 	public abstract double getPerformance();
+
+	// GETTERS AND SETTERS
+	public Equipment getHelmet() {
+		return helmet;
+	}
+
+	public void setHelmet(Equipment helmet) {
+		this.helmet = helmet;
+	}
+
+	public Equipment getArmor() {
+		return armor;
+	}
+
+	public void setArmor(Equipment armor) {
+		this.armor = armor;
+	}
+
+	public Equipment getGloves() {
+		return gloves;
+	}
+
+	public void setGloves(Equipment gloves) {
+		this.gloves = gloves;
+	}
+
+	public Equipment getBoots() {
+		return boots;
+	}
+
+	public void setBoots(Equipment boots) {
+		this.boots = boots;
+	}
+
+	public Equipment getWeapon() {
+		return weapon;
+	}
+
+	public void setWeapon(Equipment weapon) {
+		this.weapon = weapon;
+	}
+	
+	public double getHeight(){
+		return height;
+	}
+	
+	public void setHeight(double height) {
+		this.height = height;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "\n\tHeight\t" +height +"\n\tHelmet\t" +helmet.getStrength() +"\n\tArmor\t" +armor.getStrength() +"\n\tGloves\t" +gloves.getStrength() +"\n\tBoots\t" +boots.getStrength() +"\n\tWeapon\t" +weapon.getStrength();
+	}
 }
