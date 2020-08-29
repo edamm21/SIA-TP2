@@ -31,8 +31,7 @@ public class Main {
         }
         return null;
 	}
-    
-    
+
     private static void parseInputData(JSONObject object) {
         JSONObject data = (JSONObject) object.get("data");
         String name = (String)data.get("name");
@@ -41,8 +40,7 @@ public class Main {
         System.out.println("name: " + name + ", lastname: " + lastname + ", id: " + id);
     }
     
-    private static void loadEquipment(List<Equipment> list, String file, EquipmentType type)
-    {
+    private static void loadEquipment(List<Equipment> list, String file, EquipmentType type) {
         BufferedReader br = null;
         String line = "";
 		try {
@@ -97,7 +95,7 @@ public class Main {
     	
     	// Test
     	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5);
-		System.out.println("Parent 1: " +bluSpy.toString());
+    	System.out.println("Parent 1: " +bluSpy.toString());
 		System.out.println("Parent 2: " +redSpy.toString());
 		int i=0;
 		if(babySpies == null)

@@ -33,7 +33,7 @@ public class Breeder {
 		}
 		return null;
 	}
-	
+
 	public static List<Character> breedSinglePoint(Character parent1, Character parent2, int point)
 	{
 		Object[] p1Genes = getGenes(parent1);
@@ -48,7 +48,10 @@ public class Breeder {
 			c1Genes[i] = p2Genes[i];
 			c2Genes[i] = p1Genes[i];
 		}
-		return makeChildren(parent2.getClass(), c1Genes, c2Genes);
+        Mutator mutator = new Mutator("GEN", new Breeder(), 0.75);
+		mutator.mutate(c1Genes);
+        mutator.mutate(c2Genes);
+        return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
 	
 	public static List<Character> breedTwoPoint(Character parent1, Character parent2, int from, int to)
@@ -68,7 +71,7 @@ public class Breeder {
 		return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
 	
-	public static List<Character> breedAnularCross(Character parent1, Character parent2, int from, int length)
+	public static List<Character> breedAnnularCross(Character parent1, Character parent2, int from, int length)
 	{
 		Object[] p1Genes = getGenes(parent1);
 		Object[] p2Genes = getGenes(parent2);
