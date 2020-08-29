@@ -94,7 +94,8 @@ public class Main {
     	Character redSpy = new Spy(1.79, helmets.get(4), armors.get(5), gloves.get(1), boots.get(3), weapons.get(3));
     	
     	// Test
-    	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5);
+    	Mutator m = new Mutator(MutationType.UNIFORM_MULTIGENE, 0.8, helmets, armors, gloves, boots, weapons);
+    	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5, m);
     	System.out.println("Parent 1: " +bluSpy.toString());
 		System.out.println("Parent 2: " +redSpy.toString());
 		int i=0;

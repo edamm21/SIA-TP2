@@ -34,7 +34,7 @@ public class Breeder {
 		return null;
 	}
 
-	public static List<Character> breedSinglePoint(Character parent1, Character parent2, int point)
+	public static List<Character> breedSinglePoint(Character parent1, Character parent2, int point, Mutator m)
 	{
 		Object[] p1Genes = getGenes(parent1);
 		Object[] p2Genes = getGenes(parent2);
@@ -48,13 +48,15 @@ public class Breeder {
 			c1Genes[i] = p2Genes[i];
 			c2Genes[i] = p1Genes[i];
 		}
-        Mutator mutator = new Mutator("GEN", new Breeder(), 0.75);
-		mutator.mutate(c1Genes);
-        mutator.mutate(c2Genes);
+		if(m != null)
+		{
+	        c1Genes = m.mutate(c1Genes);
+	        c2Genes = m.mutate(c2Genes);
+		}
         return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
 	
-	public static List<Character> breedTwoPoint(Character parent1, Character parent2, int from, int to)
+	public static List<Character> breedTwoPoint(Character parent1, Character parent2, int from, int to, Mutator m)
 	{
 		Object[] p1Genes = getGenes(parent1);
 		Object[] p2Genes = getGenes(parent2);
@@ -68,10 +70,15 @@ public class Breeder {
 			c1Genes[i] = p2Genes[i];
 			c2Genes[i] = p1Genes[i];
 		}
+		if(m != null)
+		{
+	        c1Genes = m.mutate(c1Genes);
+	        c2Genes = m.mutate(c2Genes);
+		}
 		return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
 	
-	public static List<Character> breedAnnularCross(Character parent1, Character parent2, int from, int length)
+	public static List<Character> breedAnnularCross(Character parent1, Character parent2, int from, int length, Mutator m)
 	{
 		Object[] p1Genes = getGenes(parent1);
 		Object[] p2Genes = getGenes(parent2);
@@ -89,10 +96,15 @@ public class Breeder {
 			c2Genes[index] = p1Genes[index];
 			index++;
 		}
+		if(m != null)
+		{
+	        c1Genes = m.mutate(c1Genes);
+	        c2Genes = m.mutate(c2Genes);
+		}
 		return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
 	
-	public static List<Character> breedUniformCross(Character parent1, Character parent2, double chance)
+	public static List<Character> breedUniformCross(Character parent1, Character parent2, double chance, Mutator m)
 	{
 		if(chance > 1)
 			return null;
@@ -109,6 +121,11 @@ public class Breeder {
 				c1Genes[i] = p2Genes[i];
 				c2Genes[i] = p1Genes[i];
 			}
+		}
+		if(m != null)
+		{
+	        c1Genes = m.mutate(c1Genes);
+	        c2Genes = m.mutate(c2Genes);
 		}
 		return makeChildren(parent2.getClass(), c1Genes, c2Genes);
 	}
