@@ -5,6 +5,9 @@ import java.util.Set;
 
 public class PopulationFilter {
 
+	private static final int INITIAL_TEMPERATURE = 100;
+	private static final double K = 1.380649 * Math.pow(10, -4);	// Changed it to -4 instead of -23 so temp decreaces faster
+	
 	public static List<Character> eliteSelection(List<Character> population, int selected)
 	{
 		population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
@@ -77,7 +80,7 @@ public class PopulationFilter {
 	{
 		population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
 		double f[] = new double[population.size()];
-		for(int i=0; i < selected; i++)
+		for(int i=0; i < population.size(); i++)
 		{
 			// Since they're ordered from highest to lowest, i equals the rank
 			f[i] = 1.0 - i/selected;
@@ -174,6 +177,65 @@ public class PopulationFilter {
 			{
 				if(Awins)	list.add(challengerB);
 				else		list.add(challengerA);
+			}
+		}
+		return list;
+	}
+	
+	private static double expVal(Character i, List<Character> g, double temperature)
+	{
+		double totalPerformance = 0;
+		for(Character c : g)
+			totalPerformance += c.getPerformance();
+		
+		double a = Math.exp(i.getPerformance() / temperature);
+		double b = totalPerformance / g.size();
+		return a/b;
+	}
+	
+	private static double T(int t, double To)
+	{
+		return To * Math.exp(-K*t);
+	}
+	
+	public static List<Character> boltzMannSelection(List<Character> population, int selected, int generation)
+	{
+		System.out.println("T = " +T(generation, INITIAL_TEMPERATURE) +" Generation " +generation);
+		double expVal[] = new double[population.size()];
+		for(int i=0; i < population.size(); i++)
+		{
+			expVal[i] = expVal(population.get(i), population, T(generation, INITIAL_TEMPERATURE));
+			System.out.println("Performance: " +population.get(i).getPerformance() +"\tExpVal = " +expVal[i]);
+		}
+		
+		// From now on, it's like roulette but using expVal instead of performance
+		double totalPerformance = 0;
+		double[] p = new double[population.size()];
+		double[] q = new double[population.size()];
+		for(int i=0; i < population.size(); i++)
+			totalPerformance += expVal[i];
+		for(int i=0; i < population.size(); i++)
+		{
+			p[i] = expVal[i] / totalPerformance;
+			q[i] = 0;
+			for(int j=0; j <= i; j++)
+				q[i] += p[i];
+		}
+		
+		double[] r = new double[selected];
+		List<Character> list = new ArrayList<>();
+		for(int j=0; j < selected; j++)
+		{
+			r[j] = Math.random();
+			if(r[j] <= q[0])
+				list.add(population.get(0));
+			else for(int i=1; i < q.length; i++)
+			{
+				if(q[i-1] < r[j] && r[j] <= q[i])
+				{
+					list.add(population.get(i));
+					i = q.length; // end i loop
+				}
 			}
 		}
 		return list;

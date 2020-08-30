@@ -160,7 +160,7 @@ public class Main {
     	// Test
     	Mutator m = new Mutator(MutationType.UNIFORM_MULTIGENE, 0.8, helmets, armors, gloves, boots, weapons);
     	Character bluSpy = new Spy(1.78, helmets.get(6), armors.get(9), gloves.get(2), boots.get(6), weapons.get(4));
-    	Character redSpy = new Spy(1.79, helmets.get(4), armors.get(5), gloves.get(1), boots.get(3), weapons.get(16));
+    	Character redSpy = new Spy(1.6, helmets.get(4), armors.get(0), gloves.get(0), boots.get(0), weapons.get(16));
     	
     	List<Character> population = new ArrayList<>();
     	population.add(bluSpy);
@@ -186,7 +186,7 @@ public class Main {
 		
     	// PopulationFilter Testing
 		population.addAll(babySpies);
-    	List<Character> bestOnes = PopulationFilter.probabilisticTourneySelection(population, 3);
+    	List<Character> bestOnes = PopulationFilter.boltzMannSelection(population, 2, 0);
     	for(Character c : population)
     	{
     		System.out.println("Possible: " +c.getPerformance());
