@@ -200,13 +200,9 @@ public class PopulationFilter {
 	
 	public static List<Character> boltzMannSelection(List<Character> population, int selected, int generation)
 	{
-		System.out.println("T = " +T(generation, INITIAL_TEMPERATURE) +" Generation " +generation);
 		double expVal[] = new double[population.size()];
 		for(int i=0; i < population.size(); i++)
-		{
 			expVal[i] = expVal(population.get(i), population, T(generation, INITIAL_TEMPERATURE));
-			System.out.println("Performance: " +population.get(i).getPerformance() +"\tExpVal = " +expVal[i]);
-		}
 		
 		// From now on, it's like roulette but using expVal instead of performance
 		double totalPerformance = 0;
