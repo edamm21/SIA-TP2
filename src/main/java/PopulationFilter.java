@@ -17,6 +17,16 @@ public class PopulationFilter {
 	
 	public static List<Character> rouletteSelection(List<Character> population, int selected)
 	{
+		return rouletteUniversal(population, selected, false);
+	}
+
+	public static List<Character> universalSelection(List<Character> population, int selected)
+	{
+		return rouletteUniversal(population, selected, true);
+	}
+
+	private static List<Character> rouletteUniversal(List<Character> population, int selected, boolean universal)
+	{
 		// Calculate relative performance (p) and acum relative performances (q)
 		double totalPerformance = 0;
 		double[] p = new double[population.size()];
@@ -31,14 +41,22 @@ public class PopulationFilter {
 				q[i] += p[i];
 		}
 		
-		// Get K random values and for each, get the characters with lowest acum performance higher than that value.
-		// This defines intervals the size of relative performances, giving the best characters a better chance of landing a random in its interval!
-		// This might return the same character multiple times, but that's fine. It skews me towards better results and they might mutate anyway!
+		// For Roulette:
+		// 		Get K random values and for each, get the characters with lowest acum performance higher than that value.
+		// 		This defines intervals the size of relative performances, giving the best characters a better chance of landing a random in its interval!
+		// 		This might return the same character multiple times, but that's fine. It skews me towards better results and they might mutate anyway!
+		// For Universal:
+		//		Just like roulette, but random is selected differently, using a seed.
 		double[] r = new double[selected];
 		List<Character> list = new ArrayList<>();
+		double seed = Math.random();
 		for(int j=0; j < selected; j++)
 		{
-			r[j] = Math.random();
+			if(universal)
+				r[j] = (seed + j)/selected;	// Universal
+			else
+				r[j] = Math.random();		// Roulette
+			
 			if(r[j] <= q[0])
 				list.add(population.get(0));
 			else for(int i=1; i < q.length; i++)

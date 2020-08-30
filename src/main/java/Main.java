@@ -118,7 +118,7 @@ public class Main {
 		
     	// PopulationFilter Testing
 		population.addAll(babySpies);
-    	List<Character> bestOnes = PopulationFilter.rouletteSelection(population, 2);
+    	List<Character> bestOnes = PopulationFilter.universalSelection(population, 2);
     	for(Character c : population)
     	{
     		System.out.println("Possible: " +c.getPerformance());
