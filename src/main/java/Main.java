@@ -90,12 +90,20 @@ public class Main {
     	System.out.println("Loaded " +boots.size() +" boots");
     	loadEquipment(weapons, "fulldata/armas.tsv", EquipmentType.WEAPON);
     	System.out.println("Loaded " +weapons.size() +" weapons\n");
-    	Character bluSpy = new Spy(1.78, helmets.get(6), armors.get(9), gloves.get(2), boots.get(6), weapons.get(4));
-    	Character redSpy = new Spy(1.79, helmets.get(4), armors.get(5), gloves.get(1), boots.get(3), weapons.get(3));
     	
     	// Test
     	Mutator m = new Mutator(MutationType.UNIFORM_MULTIGENE, 0.8, helmets, armors, gloves, boots, weapons);
+    	Character bluSpy = new Spy(1.78, helmets.get(6), armors.get(9), gloves.get(2), boots.get(6), weapons.get(4));
+    	Character redSpy = new Spy(1.79, helmets.get(4), armors.get(5), gloves.get(1), boots.get(3), weapons.get(16));
+    	
+    	List<Character> population = new ArrayList<>();
+    	population.add(bluSpy);
+    	population.add(redSpy);
+    	
     	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5, m);
+    	
+    	// Breeder Testing
+    	/*
     	System.out.println("Parent 1: " +bluSpy.toString());
 		System.out.println("Parent 2: " +redSpy.toString());
 		int i=0;
@@ -106,5 +114,20 @@ public class Main {
 			i++;
 			System.out.println("Child " +i +":" +c.toString());
 		}
+		*/
+		
+    	// PopulationFilter Testing
+		population.addAll(babySpies);
+    	List<Character> bestOnes = PopulationFilter.rouletteSelection(population, 2);
+    	for(Character c : population)
+    	{
+    		System.out.println("Possible: " +c.getPerformance());
+    	}
+    	System.out.println();
+    	for(Character c : bestOnes)
+    	{
+    		System.out.println("Winner: " +c.getPerformance());
+    	}
+		
     }
 }
