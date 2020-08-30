@@ -5,11 +5,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Enums.*;
-import Exceptions.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import Enums.CharacterType;
+import Enums.CrossoverType;
+import Enums.EquipmentType;
+import Enums.ImplementationType;
+import Enums.MutationType;
+import Enums.StopType;
+import Exceptions.InvalidCharacterTypeException;
+import Exceptions.InvalidCrossoverTypeException;
+import Exceptions.InvalidFactorException;
+import Exceptions.InvalidImplementationTypeException;
+import Exceptions.InvalidMutationTypeException;
+import Exceptions.InvalidStopTypeException;
 
 public class Main {
 	
@@ -175,7 +186,7 @@ public class Main {
 		
     	// PopulationFilter Testing
 		population.addAll(babySpies);
-    	List<Character> bestOnes = PopulationFilter.rankSelection(population, 2);
+    	List<Character> bestOnes = PopulationFilter.probabilisticTourneySelection(population, 3);
     	for(Character c : population)
     	{
     		System.out.println("Possible: " +c.getPerformance());

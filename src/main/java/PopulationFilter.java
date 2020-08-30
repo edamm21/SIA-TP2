@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PopulationFilter {
 
@@ -109,6 +111,69 @@ public class PopulationFilter {
 					list.add(population.get(i));
 					i = q.length; // end i loop
 				}
+			}
+		}
+		return list;
+	}
+
+	public static List<Character> deterministicTourneySelection(List<Character> population, int selected, int contestants)
+	{
+		List<Character> list = new ArrayList<>();
+		Set<Character> tournament = new HashSet<>();
+		Character currentWinner = null;
+		Character challenger = null;
+		int index = 0;
+		for(int i=0; i < selected; i++)
+		{
+			tournament.clear();
+			currentWinner = null;
+			for(int j=0; j < contestants; j++)
+			{
+				index = (int) (Math.random()*population.size());
+				challenger = population.get(index);
+				if(tournament.contains(challenger))
+					j--;	// Try again
+				else
+				{
+					tournament.add(challenger);
+					if(currentWinner == null || challenger.getPerformance() > currentWinner.getPerformance())
+						currentWinner = challenger;
+				}
+			}
+			list.add(currentWinner);
+		}
+		return list;
+	}
+	
+	public static List<Character> probabilisticTourneySelection(List<Character> population, int selected)
+	{
+		List<Character> list = new ArrayList<>();
+		Character challengerA = null;
+		Character challengerB = null;
+		boolean Awins;
+		double threshold = Math.random()*0.5 + 0.5;
+		double r;
+		int indexA = -1;
+		int indexB = -1;
+		for(int i=0; i < selected; i++)
+		{
+			indexA = (int) (Math.random()*population.size());
+			while (indexA == indexB || indexB < 0)
+				indexB = (int) (Math.random()*population.size());
+			challengerA = population.get(indexA);
+			challengerB = population.get(indexB);
+			r = Math.random();
+			
+			Awins = challengerA.getPerformance() > challengerB.getPerformance();
+			if(r < threshold)
+			{
+				if(Awins)	list.add(challengerA);
+				else		list.add(challengerB);
+			}
+			else
+			{
+				if(Awins)	list.add(challengerB);
+				else		list.add(challengerA);
 			}
 		}
 		return list;
