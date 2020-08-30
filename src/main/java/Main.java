@@ -4,12 +4,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import Enums.*;
+import Exceptions.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Main {
 	
+    private static final int INPUT_VALUE_COUNT = 6;
 
 	private static JSONObject readJSON()
 	{
@@ -32,12 +36,57 @@ public class Main {
         return null;
 	}
 
-    private static void parseInputData(JSONObject object) {
-        JSONObject data = (JSONObject) object.get("data");
-        String name = (String)data.get("name");
-        String lastname = (String)data.get("lastname");
-        Long id = (Long)data.get("id");
-        System.out.println("name: " + name + ", lastname: " + lastname + ", id: " + id);
+    private static void parseInputData(JSONObject object) throws Exception{
+        String character = (String) object.get("CHARACTER");
+        String crossover = (String) object.get("CROSSOVER");
+        String mutation = (String) object.get("MUTATION");
+        String implementation = (String) object.get("IMPLEMENTATION");
+        String stop = (String) object.get("STOP");
+        Long factor = (Long) object.get("FACTOR");
+        Object[] values = new Object[INPUT_VALUE_COUNT];
+        CharacterType[] characters = CharacterType.values();
+        CrossoverType[] crossovers = CrossoverType.values();
+        MutationType[] mutations = MutationType.values();
+        ImplementationType[] implementations = ImplementationType.values();
+        StopType[] stops = StopType.values();
+        System.out.println("Reading config file...");
+        for(int i = 0 ; i < characters.length && values[0] == null ; i++) {
+            if(characters[i].toString().equals(character))
+                values[0] = characters[i];
+        }
+        if(values[0] == null)
+            throw new InvalidCharacterTypeException();
+        for(int i = 0 ; i < crossovers.length && values[1] == null ; i++) {
+            if(crossovers[i].toString().equals(crossover))
+                values[1] = crossovers[i];
+        }
+        if(values[1] == null)
+            throw new InvalidCrossoverTypeException();
+        for(int i = 0 ; i < mutations.length && values[2] == null ; i++) {
+            if(mutations[i].toString().equals(mutation))
+                values[2] = mutations[i];
+        }
+        if(values[2] == null)
+            throw new InvalidMutationTypeException();
+        for(int i = 0 ; i < implementations.length && values[3] == null ; i++) {
+            if(implementations[i].toString().equals(implementation))
+                values[3] = implementations[i];
+        }
+        if(values[3] == null)
+            throw new InvalidImplementationTypeException();
+        for(int i = 0 ; i < stops.length && values[4] == null ; i++) {
+            if(stops[i].toString().equals(stop))
+                values[4] = stops[i];
+        }
+        if(values[4] == null)
+            throw new InvalidStopTypeException();
+        if(factor == null)
+            throw new InvalidFactorException();
+        values[5] = factor;
+        System.out.println("Chosen params:");
+        for(Object param : values) {
+            System.out.println(param.getClass() + ": " + param);
+        }
     }
     
     private static void loadEquipment(List<Equipment> list, String file, EquipmentType type) {
@@ -71,7 +120,13 @@ public class Main {
     {
     	// Read JSON input
     	JSONObject json = readJSON();
-    	parseInputData(json);
+    	try {
+            parseInputData(json);
+        } catch (Exception e) {
+    	    e.printStackTrace();
+            System.out.println("Exiting...");
+    	    return;
+        }
     	List<Equipment> helmets = new ArrayList<>();
     	List<Equipment> armors = new ArrayList<>();
     	List<Equipment> gloves = new ArrayList<>();
@@ -99,7 +154,9 @@ public class Main {
     	List<Character> population = new ArrayList<>();
     	population.add(bluSpy);
     	population.add(redSpy);
-    	
+
+    	String stopChosen = "TIME";
+    	float time = 10*1000; //milliseconds
     	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5, m);
     	
     	// Breeder Testing

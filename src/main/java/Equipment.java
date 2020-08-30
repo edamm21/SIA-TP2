@@ -1,3 +1,5 @@
+import Enums.EquipmentType;
+
 public class Equipment {
 
     EquipmentType type;

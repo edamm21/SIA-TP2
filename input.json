@@ -1,7 +1,8 @@
 {
-  "data": {
-    "name": "Eugenio",
-    "lastname": "Damm",
-    "id": 1
-  }
+  "CHARACTER":"SPY",
+  "CROSSOVER":"SINGLE_POINT",
+  "MUTATION":"GENE",
+  "IMPLEMENTATION":"FILL_ALL",
+  "STOP":"TIME",
+  "FACTOR":1000
 }
