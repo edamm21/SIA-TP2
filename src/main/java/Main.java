@@ -1,30 +1,22 @@
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
+import Enums.*;
+import Exceptions.*;
+import dataModels.DPoint;
+import graph.SimpleGraph;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import Enums.CharacterType;
-import Enums.CrossoverType;
-import Enums.EquipmentType;
-import Enums.ImplementationType;
-import Enums.MutationType;
-import Enums.StopType;
-import Exceptions.InvalidCharacterTypeException;
-import Exceptions.InvalidCrossoverTypeException;
-import Exceptions.InvalidFactorException;
-import Exceptions.InvalidImplementationTypeException;
-import Exceptions.InvalidMutationTypeException;
-import Exceptions.InvalidStopTypeException;
-
 public class Main {
 	
-    private static final int INPUT_VALUE_COUNT = 6;
+    private static final int INPUT_VALUE_COUNT = 11;
 
 	private static JSONObject readJSON()
 	{
@@ -47,57 +39,117 @@ public class Main {
         return null;
 	}
 
-    private static void parseInputData(JSONObject object) throws Exception{
-        String character = (String) object.get("CHARACTER");
-        String crossover = (String) object.get("CROSSOVER");
-        String mutation = (String) object.get("MUTATION");
-        String implementation = (String) object.get("IMPLEMENTATION");
-        String stop = (String) object.get("STOP");
-        Long factor = (Long) object.get("FACTOR");
-        Object[] values = new Object[INPUT_VALUE_COUNT];
+    private static void parseInputData(JSONObject object, Map<String, Object> values) throws Exception{
+        Set keys = object.keySet();
+        Iterator it = keys.iterator();
+        while(it.hasNext()) {
+            String key = (String) it.next();
+            values.put(key, object.get(key));
+        }
         CharacterType[] characters = CharacterType.values();
         CrossoverType[] crossovers = CrossoverType.values();
         MutationType[] mutations = MutationType.values();
+        SelectionType[] selections = SelectionType.values();
         ImplementationType[] implementations = ImplementationType.values();
         StopType[] stops = StopType.values();
+        boolean ok = false;
         System.out.println("Reading config file...");
-        for(int i = 0 ; i < characters.length && values[0] == null ; i++) {
-            if(characters[i].toString().equals(character))
-                values[0] = characters[i];
+        for(int i = 0 ; i < characters.length && !ok; i++) {
+            if(characters[i].toString().equals((String)values.get("CHARACTER"))) {
+                values.remove("CHARACTER");
+                values.put("CHARACTER",characters[i]);
+                ok = true;
+            }
         }
-        if(values[0] == null)
-            throw new InvalidCharacterTypeException();
-        for(int i = 0 ; i < crossovers.length && values[1] == null ; i++) {
-            if(crossovers[i].toString().equals(crossover))
-                values[1] = crossovers[i];
+        if(!ok)
+            throw new InvalidArgument("Character");
+        ok = false;
+        for(int i = 0 ; i < crossovers.length && !ok ; i++) {
+            if(crossovers[i].toString().equals((String)values.get("CROSSOVER"))) {
+                values.remove("CROSSOVER");
+                values.put("CROSSOVER", crossovers[i]);
+                ok = true;
+            }
         }
-        if(values[1] == null)
-            throw new InvalidCrossoverTypeException();
-        for(int i = 0 ; i < mutations.length && values[2] == null ; i++) {
-            if(mutations[i].toString().equals(mutation))
-                values[2] = mutations[i];
+        if(!ok)
+            throw new InvalidArgument("Crossover");
+        ok = false;
+        for(int i = 0 ; i < mutations.length && !ok ; i++) {
+            if(mutations[i].toString().equals((String)values.get("MUTATION"))) {
+                values.remove("MUTATION");
+                values.put("MUTATION", mutations[i]);
+                ok = true;
+            }
         }
-        if(values[2] == null)
-            throw new InvalidMutationTypeException();
-        for(int i = 0 ; i < implementations.length && values[3] == null ; i++) {
-            if(implementations[i].toString().equals(implementation))
-                values[3] = implementations[i];
+        if(!ok)
+            throw new InvalidArgument("Mutation");
+        ok = false;
+        int methodsFound = 0;
+        String m1 = (String)values.get("SELECTION_METHOD_1");
+        String m2 = (String)values.get("SELECTION_METHOD_2");
+        String m3 = (String)values.get("SELECTION_METHOD_3");
+        String m4 = (String)values.get("SELECTION_METHOD_4");
+        for(int i = 0 ; i < selections.length && methodsFound < 4 ; i++) {
+            if(selections[i].toString().equals(m1)) {
+                values.remove("SELECTION_METHOD_1");
+                values.put("SELECTION_METHOD_1", selections[i]);
+                methodsFound++;
+            }
+            if(selections[i].toString().equals(m2)) {
+                values.remove("SELECTION_METHOD_2");
+                values.put("SELECTION_METHOD_2", selections[i]);
+                methodsFound++;
+            }
+            if(selections[i].toString().equals(m3)) {
+                values.remove("SELECTION_METHOD_3");
+                values.put("SELECTION_METHOD_3", selections[i]);
+                methodsFound++;
+            }
+            if(selections[i].toString().equals(m4)) {
+                values.remove("SELECTION_METHOD_4");
+                values.put("SELECTION_METHOD_4", selections[i]);
+                methodsFound++;
+            }
         }
-        if(values[3] == null)
-            throw new InvalidImplementationTypeException();
-        for(int i = 0 ; i < stops.length && values[4] == null ; i++) {
-            if(stops[i].toString().equals(stop))
-                values[4] = stops[i];
+        if(methodsFound != 4)
+            throw new InvalidArgument("Selection methods");
+        ok = false;
+        for(int i = 0 ; i < implementations.length && !ok ; i++) {
+            if(implementations[i].toString().equals((String)values.get("IMPLEMENTATION"))) {
+                values.remove("IMPLEMENTATION");
+                values.put("IMPLEMENTATION", implementations[i]);
+                ok = true;
+            }
         }
-        if(values[4] == null)
-            throw new InvalidStopTypeException();
-        if(factor == null)
-            throw new InvalidFactorException();
-        values[5] = factor;
-        System.out.println("Chosen params:");
-        for(Object param : values) {
-            System.out.println(param.getClass() + ": " + param);
+        if(!ok)
+            throw new InvalidArgument("Implementation");
+        ok = false;
+        for(int i = 0 ; i < stops.length && !ok ; i++) {
+            if(stops[i].toString().equals((String)values.get("STOP"))) {
+                values.remove("STOP");
+                values.put("STOP", stops[i]);
+                ok = true;
+            }
         }
+        if(!ok)
+            throw new InvalidArgument("Stop");
+        if((Double)values.get("PARENT_SELECTION_A") < 0.0 || (Double)values.get("PARENT_SELECTION_A") > 1.0)
+            throw new InvalidArgument("Parent selection");
+        if((Double)values.get("INDIV_SELECTION_B") < 0.0 || (Double)values.get("INDIV_SELECTION_B") > 1.0)
+            throw new InvalidArgument("Individual selection");
+        if((Double)values.get("MUTATION_PROBABILITY") < 0.0 || (Double)values.get("MUTATION_PROBABILITY") > 1.0)
+            throw new InvalidArgument("Mutation probability");
+        if((Double)values.get("CROSSOVER_PERCENTAGE") < 0.0 || (Double)values.get("CROSSOVER_PERCENTAGE") > 1.0)
+            throw new InvalidArgument("Crossover percentage");
+        if((values.get("TOURNAMENT_M") != null && values.get("K") != null) && ((Long)values.get("TOURNAMENT_M") > (Long)values.get("K") ||
+                                                                                (Long)values.get("TOURNAMENT_M") < 0 || (Long)values.get("K") < 0))
+            throw new InvalidArgument("Tournament M");
+        if((Long)values.get("K") < 0)
+            throw new InvalidArgument("K");
+        if((Long)values.get("POPULATION") < 0)
+            throw new InvalidArgument("Population");
+        if((Long)values.get("FACTOR") < 0)
+            throw new InvalidArgument("Factor");
     }
     
     private static void loadEquipment(List<Equipment> list, String file, EquipmentType type) {
@@ -131,71 +183,35 @@ public class Main {
     {
     	// Read JSON input
     	JSONObject json = readJSON();
-    	try {
-            parseInputData(json);
+        Map<String, Object> values = new HashMap<>();
+        try {
+            parseInputData(json, values);
         } catch (Exception e) {
     	    e.printStackTrace();
             System.out.println("Exiting...");
     	    return;
         }
-    	List<Equipment> helmets = new ArrayList<>();
-    	List<Equipment> armors = new ArrayList<>();
-    	List<Equipment> gloves = new ArrayList<>();
-    	List<Equipment> boots = new ArrayList<>();
-    	List<Equipment> weapons = new ArrayList<>();
+        Map<String, List<Equipment>> equipment = new HashMap<>();
+        equipment.put("helmets", new ArrayList<>());
+        equipment.put("armors", new ArrayList<>());
+        equipment.put("gloves", new ArrayList<>());
+        equipment.put("boots", new ArrayList<>());
+        equipment.put("weapons", new ArrayList<>());
     	
     	// Import equipment database
     	System.out.println("\nImporting equipment, please wait...");
-    	loadEquipment(helmets, "fulldata/cascos.tsv", EquipmentType.HELMET);
-    	System.out.println("Loaded " +helmets.size() +" helmets");
-    	loadEquipment(armors, "fulldata/pecheras.tsv", EquipmentType.ARMOR);
-    	System.out.println("Loaded " +armors.size() +" armors");
-    	loadEquipment(gloves, "fulldata/guantes.tsv", EquipmentType.GLOVES);
-    	System.out.println("Loaded " +gloves.size() +" gloves");
-    	loadEquipment(boots, "fulldata/botas.tsv", EquipmentType.BOOTS);
-    	System.out.println("Loaded " +boots.size() +" boots");
-    	loadEquipment(weapons, "fulldata/armas.tsv", EquipmentType.WEAPON);
-    	System.out.println("Loaded " +weapons.size() +" weapons\n");
-    	
-    	// Test
-    	Mutator m = new Mutator(MutationType.UNIFORM_MULTIGENE, 0.8, helmets, armors, gloves, boots, weapons);
-    	Character bluSpy = new Spy(1.78, helmets.get(6), armors.get(9), gloves.get(2), boots.get(6), weapons.get(4));
-    	Character redSpy = new Spy(1.6, helmets.get(4), armors.get(0), gloves.get(0), boots.get(0), weapons.get(16));
-    	
-    	List<Character> population = new ArrayList<>();
-    	population.add(bluSpy);
-    	population.add(redSpy);
+    	loadEquipment(equipment.get("helmets"), "fulldata/cascos.tsv", EquipmentType.HELMET);
+    	loadEquipment(equipment.get("armors"), "fulldata/pecheras.tsv", EquipmentType.ARMOR);
+    	loadEquipment(equipment.get("gloves"), "fulldata/guantes.tsv", EquipmentType.GLOVES);
+    	loadEquipment(equipment.get("boots"), "fulldata/botas.tsv", EquipmentType.BOOTS);
+    	loadEquipment(equipment.get("weapons"), "fulldata/armas.tsv", EquipmentType.WEAPON);
 
-    	String stopChosen = "TIME";
-    	float time = 10*1000; //milliseconds
-    	List<Character> babySpies = Breeder.breedSinglePoint(bluSpy, redSpy, 5, m);
-    	
-    	// Breeder Testing
-    	/*
-    	System.out.println("Parent 1: " +bluSpy.toString());
-		System.out.println("Parent 2: " +redSpy.toString());
-		int i=0;
-		if(babySpies == null)
-			System.out.println("No children could be obtained! Check crossover params!");
-		else for(Character c : babySpies)
-		{
-			i++;
-			System.out.println("Child " +i +":" +c.toString());
-		}
-		*/
-		
-    	// PopulationFilter Testing
-		population.addAll(babySpies);
-    	List<Character> bestOnes = PopulationFilter.boltzMannSelection(population, 2, 0);
-    	for(Character c : population)
-    	{
-    		System.out.println("Possible: " +c.getPerformance());
-    	}
-    	System.out.println();
-    	for(Character c : bestOnes)
-    	{
-    		System.out.println("Winner: " +c.getPerformance());
-    	}
-		
+    	GeneticAlgorithm ga = new GeneticAlgorithm(values, equipment);
+        List<Point> points = ga.start();
+        SimpleGraph graph = new SimpleGraph(points.size(), points.get(0).getY() + 10, 1, 0.25);
+        for(Point point : points) {
+            graph.addPoint(point.getX(), point.getY());
+        }
+        graph.display();
     }
 }

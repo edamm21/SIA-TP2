@@ -6,7 +6,8 @@ public abstract class Character
 	private Equipment gloves;
 	private Equipment boots;
 	private Equipment weapon;
-	
+	public static final int GENE_COUNT = 6;
+
 	public Character(double height, Equipment helmet, Equipment armor, Equipment gloves, Equipment boots, Equipment weapon)
 	{
 		this.height = height;
@@ -146,6 +147,6 @@ public abstract class Character
 	@Override
 	public String toString()
 	{
-		return "\n\tHeight\t" +height +"\n\tHelmet\t" +helmet.getStrength() +"\n\tArmor\t" +armor.getStrength() +"\n\tGloves\t" +gloves.getStrength() +"\n\tBoots\t" +boots.getStrength() +"\n\tWeapon\t" +weapon.getStrength() +"\n\tPerformance\t" +getPerformance();
+		return "Performance\t" + getPerformance();
 	}
 }

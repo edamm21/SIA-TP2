@@ -31,7 +31,7 @@ public class Breeder {
 			ret.add(child2);
 			return ret;
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	public static List<Character> breedSinglePoint(Character parent1, Character parent2, int point, Mutator m)
@@ -41,7 +41,7 @@ public class Breeder {
 		Object[] c1Genes = getGenes(parent1);
 		Object[] c2Genes = getGenes(parent2);
 		if(point < 0 || point >= p1Genes.length)
-			return null;
+			return new ArrayList<>();
 		
 		for(int i=0; i < point; i++)
 		{
@@ -63,7 +63,7 @@ public class Breeder {
 		Object[] c1Genes = getGenes(parent1);
 		Object[] c2Genes = getGenes(parent2);
 		if(from < 0 || to < 0 || from >= p1Genes.length || from > to)
-			return null;
+			return new ArrayList<>();
 		
 		for(int i=from; i < to; i++)
 		{
@@ -85,7 +85,7 @@ public class Breeder {
 		Object[] c1Genes = getGenes(parent1);
 		Object[] c2Genes = getGenes(parent2);
 		if(from < 0 || from >= p1Genes.length)
-			return null;
+			return new ArrayList<>();
 		
 		int index = from;
 		for(int i=0; i < length; i++)
@@ -107,7 +107,7 @@ public class Breeder {
 	public static List<Character> breedUniformCross(Character parent1, Character parent2, double chance, Mutator m)
 	{
 		if(chance > 1)
-			return null;
+			return new ArrayList<>();
 		Object[] p1Genes = getGenes(parent1);
 		Object[] p2Genes = getGenes(parent2);
 		Object[] c1Genes = getGenes(parent1);
