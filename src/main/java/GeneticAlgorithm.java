@@ -121,7 +121,7 @@ public class GeneticAlgorithm {
         Collections.shuffle(selected);
         
         List<Character> children = new ArrayList<>();
-        System.out.println("Parents (selected.size() is " +selected.size() +")");
+        System.out.println("Parents breeding:");
         for(int i=0; i < individualsToBreed; i++)
         {
             Character parent1 = selected.get(i);
@@ -185,13 +185,11 @@ public class GeneticAlgorithm {
         {
             case FILL_ALL: {
                 List<Character> all = new ArrayList<>(this.population);
-                System.out.println("Pop = " +population.size() +"\tN = " +N +"\tK = " +K);
                 all.addAll(children);
                 this.population = selectIndividuals(all, (int)N);
                 break;
             }
             case FILL_PARENT: {
-            	System.out.println("Fill parent. K = " +K +"\tN = " +N);
                 if (K > N) {
                     this.population = selectIndividuals(children, (int)N);
                     break;
@@ -243,11 +241,8 @@ public class GeneticAlgorithm {
         List<Character> children;
         System.out.println("Running algorithm...");
         Double a = (Double)this.values.get("PARENT_SELECTION_A");
-        Double b = (Double)this.values.get("INDIV_SELECTION_B");
         int selectedWithMethod1 = (int)(a * (Long)this.values.get("K"));
         int selectedWithMethod2 = (int)((Long)this.values.get("K") - selectedWithMethod1);
-        System.out.println("Selection will go as " +selectedWithMethod1 +" / " +selectedWithMethod2);
-        Double mutationProbability = (Double)this.values.get("MUTATION_PROBABILITY");
         
         while(searchActive())
         {
