@@ -192,32 +192,36 @@ public class Main {
     {
     	List<Point> repPoints = new LinkedList<>();
     	List<Point> forgPoints = new LinkedList<>();
+    	List<Point> avgPoints = new LinkedList<>();
         int X = Math.max(reproduced.size(), forgotten.size());
         double topY = 0;
         for(Integer gen : reproduced.keySet())
         {
+        	double total = 0;
         	for(Character c : reproduced.get(gen))
         	{
+        		total += c.getPerformance();
         		repPoints.add(new Point(gen, c.getPerformance()));
                 if(c.getPerformance() > topY)
                 	topY = c.getPerformance();
         	}
-        }
-        for(Integer gen : forgotten.keySet())
-        {
         	for(Character c : forgotten.get(gen))
         	{
+        		total += c.getPerformance();
         		forgPoints.add(new Point(gen, c.getPerformance()));
                 if(c.getPerformance() > topY)
                 	topY = c.getPerformance();
         	}
+        	avgPoints.add(new Point(gen, total / (reproduced.get(gen).size() + forgotten.get(gen).size())));
         }
     	
-    	SimpleGraph graph = new SimpleGraph(X + 10, topY+10, 1, 0.5);
+    	SimpleGraph graph = new SimpleGraph(X + 5, topY+10, 1, 0.5);
     	for(Point p : forgPoints)
     		graph.addPoint(p.getX(), p.getY(), Color.BLACK);
     	for(Point p : repPoints)
     		graph.addPoint(p.getX(), p.getY(), Color.GREEN);
+    	for(Point p : avgPoints)
+    		graph.addPoint(p.getX(), p.getY(), Color.RED);
     	return graph;
     }
     
