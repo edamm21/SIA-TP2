@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -193,17 +199,21 @@ public class Main {
     	List<Point> repPoints = new LinkedList<>();
     	List<Point> forgPoints = new LinkedList<>();
     	List<Point> avgPoints = new LinkedList<>();
+    	List<Point> bestPointsPerGeneration = new LinkedList<>();
         int X = Math.max(reproduced.size(), forgotten.size());
         double topY = 0;
         for(Integer gen : reproduced.keySet())
         {
         	double total = 0;
+        	Character best = reproduced.get(0).iterator().next();
         	for(Character c : reproduced.get(gen))
         	{
         		total += c.getPerformance();
         		repPoints.add(new Point(gen, c.getPerformance()));
                 if(c.getPerformance() > topY)
                 	topY = c.getPerformance();
+                if(c.getPerformance() > best.getPerformance())
+                    best = c;
         	}
         	for(Character c : forgotten.get(gen))
         	{
@@ -211,17 +221,30 @@ public class Main {
         		forgPoints.add(new Point(gen, c.getPerformance()));
                 if(c.getPerformance() > topY)
                 	topY = c.getPerformance();
+                if(c.getPerformance() > best.getPerformance())
+                    best = c;
         	}
         	avgPoints.add(new Point(gen, total / (reproduced.get(gen).size() + forgotten.get(gen).size())));
+        	bestPointsPerGeneration.add(new Point(gen, best.getPerformance()));
         }
     	
     	SimpleGraph graph = new SimpleGraph(X + 5, topY+10, 1, 0.5);
-    	for(Point p : forgPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.BLACK);
-    	for(Point p : repPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.GREEN);
-    	for(Point p : avgPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.RED);
+        for(Point p : forgPoints)
+            graph.addPoint(p.getX(), p.getY(), Color.BLACK);
+        for(Point p : repPoints)
+            graph.addPoint(p.getX(), p.getY(), Color.GREEN);
+        Point prevP = avgPoints.get(0);
+    	for(Point p : avgPoints) {
+            graph.addPoint(p.getX(), p.getY(), Color.RED);
+            graph.addShape(new SimpleGraph.Line(prevP.getX(), prevP.getY(), p.getX(), p.getY(), Color.RED));
+            prevP = p;
+        }
+        prevP = bestPointsPerGeneration.get(0);
+        for(Point p : bestPointsPerGeneration) {
+            graph.addPoint(p.getX(), p.getY(), Color.ORANGE);
+            graph.addShape(new SimpleGraph.Line(prevP.getX(), prevP.getY(), p.getX(), p.getY(), Color.ORANGE));
+            prevP = p;
+        }
     	return graph;
     }
     
@@ -261,5 +284,26 @@ public class Main {
         // Our maps contain the info to create the graph
         SimpleGraph graph = setupGraph(reproduced, forgotten);
         graph.display();
+        XYDataset dataset = createDataset(reproduced, forgotten);
+        JFreeChart chart = ChartFactory.createXYLineChart("Evolución por generación", "Aptitud", "Generación", dataset, PlotOrientation.VERTICAL, false, false, false);
+    }
+
+    private static XYDataset createDataset(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten) {
+        XYSeries series = new XYSeries("Evolución");
+        Character best = reproduced.get(0).iterator().next();
+        for(Integer generation : reproduced.keySet()) {
+            for(Character c : reproduced.get(generation)) {
+                if(c.getPerformance() > best.getPerformance())
+                    best = c;
+            }
+            for(Character c : forgotten.get(generation)) {
+                if(c.getPerformance() > best.getPerformance())
+                    best = c;
+            }
+            series.add((int)generation, best.getPerformance());
+        }
+        XYSeriesCollection collection = new XYSeriesCollection();
+        collection.addSeries(series);
+        return collection;
     }
 }
