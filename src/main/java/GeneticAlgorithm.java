@@ -1,22 +1,31 @@
-import Enums.*;
-import dataModels.DPoint;
-
-import java.nio.DoubleBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import Enums.CharacterType;
+import Enums.CrossoverType;
+import Enums.EquipmentType;
+import Enums.ImplementationType;
+import Enums.MutationType;
+import Enums.SelectionType;
+import Enums.StopType;
 
 public class GeneticAlgorithm {
 
     private final double HEIGHT_MAX = 2.0;
     private final double HEIGHT_MIN = 1.3;
     private Map<String, Object> values;
-    private Map<String, List<Equipment>> equipment;
+    private Map<EquipmentType, List<Equipment>> equipment;
     private int generationCount;
     private long startTime;
     private List<Character> population;
     private Character currentBestPerformer;
     private int repeatedBestPerformer;
 
-    public GeneticAlgorithm(Map<String, Object> chosenValues, Map<String, List<Equipment>> equipment) {
+    public GeneticAlgorithm(Map<String, Object> chosenValues, Map<EquipmentType, List<Equipment>> equipment) {
         this.values = chosenValues;
         this.equipment = equipment;
         this.generationCount = 0;
@@ -24,7 +33,7 @@ public class GeneticAlgorithm {
         this.currentBestPerformer = null;
     }
 
-    private boolean runnable() {
+    private boolean searchActive() {
         Long factor = (Long)values.get("FACTOR");
         switch ((StopType)this.values.get("STOP")) {
             case GENERATIONS:
@@ -42,41 +51,36 @@ public class GeneticAlgorithm {
         }
     }
 
-    private void generatePopulation(Map<String, List<Equipment>> equipment) {
+    private void generatePopulation(Map<EquipmentType, List<Equipment>> equipment) {
         int count = 0;
         this.population = new ArrayList<>();
         while(count < (Long)this.values.get("POPULATION")) {
             Random random = new Random();
+            int randomHelmet = random.nextInt(equipment.get(EquipmentType.HELMET).size() - 1);
+            int randomArmor = random.nextInt(equipment.get(EquipmentType.ARMOR).size() - 1);
+            int randomGloves = random.nextInt(equipment.get(EquipmentType.GLOVES).size() - 1);
+            int randomBoots = random.nextInt(equipment.get(EquipmentType.BOOTS).size() - 1);
+            int randomWeapon = random.nextInt(equipment.get(EquipmentType.WEAPON).size() - 1);
+            
             double randomHeight = HEIGHT_MIN + (HEIGHT_MAX - HEIGHT_MIN) * random.nextDouble();
-            int randomHelmet = random.nextInt(equipment.get("helmets").size() - 1);
-            int randomArmor = random.nextInt(equipment.get("armors").size() - 1);
-            int randomGloves = random.nextInt(equipment.get("gloves").size() - 1);
-            int randomBoots = random.nextInt(equipment.get("boots").size() - 1);
-            int randomWeapon = random.nextInt(equipment.get("weapons").size() - 1);
+            Equipment helmet = equipment.get(EquipmentType.HELMET).get(randomHelmet);
+            Equipment armor= equipment.get(EquipmentType.ARMOR).get(randomArmor);
+            Equipment gloves = equipment.get(EquipmentType.GLOVES).get(randomGloves);
+            Equipment boots = equipment.get(EquipmentType.BOOTS).get(randomBoots);
+            Equipment weapon = equipment.get(EquipmentType.WEAPON).get(randomWeapon);
+            
             switch ((CharacterType)this.values.get("CHARACTER")) {
                 case SPY:
-                    this.population.add(new Spy(randomHeight,
-                                            equipment.get("helmets").get(randomHelmet),
-                                            equipment.get("armors").get(randomArmor), equipment.get("gloves").get(randomGloves),
-                                            equipment.get("boots").get(randomBoots), equipment.get("weapons").get(randomWeapon)));
+                    this.population.add(new Spy(randomHeight, helmet, armor, gloves, boots, weapon));
                     break;
                 case ARCHER:
-                    this.population.add(new Archer(randomHeight,
-                                            equipment.get("helmets").get(randomHelmet),
-                                            equipment.get("armors").get(randomArmor), equipment.get("gloves").get(randomGloves),
-                                            equipment.get("boots").get(randomBoots), equipment.get("weapons").get(randomWeapon)));
+                    this.population.add(new Archer(randomHeight, helmet, armor, gloves, boots, weapon));
                     break;
                 case WARRIOR:
-                    this.population.add(new Warrior(randomHeight,
-                                            equipment.get("helmets").get(randomHelmet),
-                                            equipment.get("armors").get(randomArmor), equipment.get("gloves").get(randomGloves),
-                                            equipment.get("boots").get(randomBoots), equipment.get("weapons").get(randomWeapon)));
+                    this.population.add(new Warrior(randomHeight, helmet, armor, gloves, boots, weapon));
                     break;
                 case DEFENDER:
-                    this.population.add(new Defender(randomHeight,
-                                            equipment.get("helmets").get(randomHelmet),
-                                            equipment.get("armors").get(randomArmor), equipment.get("gloves").get(randomGloves),
-                                            equipment.get("boots").get(randomBoots), equipment.get("weapons").get(randomWeapon)));
+                    this.population.add(new Defender(randomHeight, helmet, armor, gloves, boots, weapon));
                     break;
                 default:
                     break;
@@ -86,6 +90,8 @@ public class GeneticAlgorithm {
     }
 
     private List<Character> selectFromSubPopulation(List<Character> subpopulation, String method, int amount) {
+    	if(subpopulation.size() == 0)
+    		return new ArrayList<>();
         switch ((SelectionType)this.values.get(method)) {
             case ELITE:
                 return PopulationFilter.eliteSelection(subpopulation, amount);
@@ -94,9 +100,9 @@ public class GeneticAlgorithm {
             case UNIVERSAL:
                 return PopulationFilter.universalSelection(subpopulation, amount);
             case BOLTZMANN:
-                return PopulationFilter.boltzMannSelection(subpopulation, amount, this.generationCount);
+                return PopulationFilter.boltzmannSelection(subpopulation, amount, this.generationCount);
             case DET_TOURNAMENT:
-                return PopulationFilter.deterministicTourneySelection(subpopulation, amount, (int)this.values.get("TOURNAMENT_M"));
+                return PopulationFilter.deterministicTourneySelection(subpopulation, amount, (int)(0+(Long)values.get("TOURNAMENT_M")));
             case PROB_TOURNAMENT:
                 return PopulationFilter.probabilisticTourneySelection(subpopulation, amount);
             case RANKING:
@@ -107,78 +113,57 @@ public class GeneticAlgorithm {
     }
 
     private List<Character> selectFromPopulation(String method, int amount) {
-        switch ((SelectionType)this.values.get(method)) {
-            case ELITE:
-                return PopulationFilter.eliteSelection(this.population, amount);
-            case ROULETTE:
-                return PopulationFilter.rouletteSelection(this.population, amount);
-            case UNIVERSAL:
-                return PopulationFilter.universalSelection(this.population, amount);
-            case BOLTZMANN:
-                return PopulationFilter.boltzMannSelection(this.population, amount, this.generationCount);
-            case DET_TOURNAMENT:
-                return PopulationFilter.deterministicTourneySelection(this.population, amount, (int)this.values.get("TOURNAMENT_M"));
-            case PROB_TOURNAMENT:
-                return PopulationFilter.probabilisticTourneySelection(this.population, amount);
-            case RANKING:
-                return PopulationFilter.rankSelection(this.population, amount);
-            default:
-                return new ArrayList<>();
-        }
+    	return selectFromSubPopulation(population, method, amount);
     }
 
-    public List<Character> generateCrossover(List<Character> selected) {
-        Mutator mutator = new Mutator((MutationType)this.values.get("MUTATION"), (double)this.values.get("MUTATION_PROBABILITY"),
-                                        this.equipment.get("helmets"), this.equipment.get("armors"),
-                                        this.equipment.get("gloves"), this.equipment.get("boots"),
-                                        this.equipment.get("weapons"));
-        int individualsToBreed = (int)((Double)this.values.get("CROSSOVER_PERCENTAGE") * selected.size());
-        if(individualsToBreed % 2 != 0 && individualsToBreed != selected.size())
-            individualsToBreed += 1; // para hacerlo par y poder realmente cruzar distintos
-        else
-            individualsToBreed -= 1;
-        List<Integer> indexesToPerformCrossover = new ArrayList<>();
-        while(indexesToPerformCrossover.size() < individualsToBreed) {
-            Random random = new Random();
-            int index = random.nextInt(individualsToBreed);
-            if(!indexesToPerformCrossover.contains(index))
-                indexesToPerformCrossover.add(index);
-        }
-        int numberOfCrossoversToPerform = individualsToBreed / 2;
-        int numberOfCrossoversDone = 0;
+    public List<Character> generateCrossover(List<Character> selected, Mutator mutator) {
+        int individualsToBreed = selected.size() - (selected.size() % 2);	// Choose an even amount
+        Collections.shuffle(selected);
+        
         List<Character> children = new ArrayList<>();
-        while(numberOfCrossoversDone < numberOfCrossoversToPerform) {
-            Character parent1 = selected.get(2 * numberOfCrossoversDone);
-            Character parent2 = selected.get(2 * numberOfCrossoversDone + 1);
+        System.out.println("Parents (selected.size() is " +selected.size() +")");
+        for(int i=0; i < individualsToBreed; i++)
+        {
+            Character parent1 = selected.get(i);
+            Character parent2 = selected.get(i+1);
+            i++;
+            System.out.println("\t" +parent1.getPerformance() +"\t<3\t" +parent2.getPerformance());
             Random random = new Random();
-            switch ((CrossoverType) this.values.get("CROSSOVER")) {
-                case SINGLE_POINT: {
-                    int point = random.nextInt(Character.GENE_COUNT + 1);
-                    children.addAll(Breeder.breedSinglePoint(parent1, parent2, point, mutator));
-                    break;
-                }
-                case TWO_POINT: {
-                    int point1 = random.nextInt(Character.GENE_COUNT + 1);
-                    int point2 = random.nextInt((Character.GENE_COUNT + 1 - point1) + point1); // desde point1 hasta el ultimo gen
-                    children.addAll(Breeder.breedTwoPoint(parent1, parent2, point1, point2, mutator));
-                    break;
-                }
-                case ANNULAR: {
-                    int locus = random.nextInt(Character.GENE_COUNT + 1);
-                    int length = random.nextInt((int)Math.ceil((Character.GENE_COUNT + 1) / 2));
-                    children.addAll(Breeder.breedAnnularCross(parent1, parent2, locus, length, mutator));
-                    break;
-                }
-                case UNIFORM: {
-                    double probability = random.nextDouble();
-                    children.addAll(Breeder.breedUniformCross(parent1, parent2, probability, mutator));
-                    break;
-                }
-                default:
-                    children.addAll(new ArrayList<>());
-                    break;
+            switch ((CrossoverType) this.values.get("CROSSOVER"))
+            {
+	            case SINGLE_POINT: {
+	                int point = random.nextInt(Character.GENE_COUNT);
+	                children.addAll(Breeder.breedSinglePoint(parent1, parent2, point, mutator));
+	                break;
+	            }
+	            case TWO_POINT: {
+	                int point1 = random.nextInt(Character.GENE_COUNT);
+	                int point2 = random.nextInt(Character.GENE_COUNT);
+	                if(point2 < point1)
+	                {
+	                	int aux = point2;
+	                	point2 = point1;
+	                	point1 = aux;
+	                }
+	                List<Character> aux = Breeder.breedTwoPoint(parent1, parent2, point1, point2, mutator);
+	                children.addAll(aux);
+	                break;
+	            }
+	            case ANNULAR: {
+	                int locus = random.nextInt(Character.GENE_COUNT);
+	                int length = random.nextInt((int)Math.ceil(Character.GENE_COUNT / 2));
+	                children.addAll(Breeder.breedAnnularCross(parent1, parent2, locus, length, mutator));
+	                break;
+	            }
+	            case UNIFORM: {
+	                double probability = random.nextDouble();
+	                children.addAll(Breeder.breedUniformCross(parent1, parent2, probability, mutator));
+	                break;
+	            }
+	            default:
+	                children.addAll(new ArrayList<>());
+	                break;
             }
-            numberOfCrossoversDone++;
         }
         return children;
     }
@@ -189,7 +174,6 @@ public class GeneticAlgorithm {
         int amountWithMethod4 = limit - amountWithMethod3;
         List<Character> selected = new ArrayList<>(selectFromSubPopulation(characters, "SELECTION_METHOD_3", amountWithMethod3));
         List<Character> subpopulation = new ArrayList<>(characters);
-        subpopulation.removeAll(selected);
         selected.addAll(selectFromSubPopulation(subpopulation, "SELECTION_METHOD_4", amountWithMethod4));
         return selected;
     }
@@ -197,15 +181,17 @@ public class GeneticAlgorithm {
     private void performReplacement(List<Character> children) {
         long N = (long)this.values.get("POPULATION");
         long K = children.size();
-        long total = N + K;
-        switch ((ImplementationType)this.values.get("IMPLEMENTATION")) {
+        switch ((ImplementationType)this.values.get("IMPLEMENTATION"))
+        {
             case FILL_ALL: {
                 List<Character> all = new ArrayList<>(this.population);
+                System.out.println("Pop = " +population.size() +"\tN = " +N +"\tK = " +K);
                 all.addAll(children);
                 this.population = selectIndividuals(all, (int)N);
                 break;
             }
             case FILL_PARENT: {
+            	System.out.println("Fill parent. K = " +K +"\tN = " +N);
                 if (K > N) {
                     this.population = selectIndividuals(children, (int)N);
                     break;
@@ -220,47 +206,80 @@ public class GeneticAlgorithm {
         }
     }
 
-    public List<Point> start() {
+    private void analyzeGeneration(int generation, List<Character> population)
+    {
+        population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
+        Character bestPerformerThisGen = population.get(0);
+        if(currentBestPerformer == null)
+        {
+        	currentBestPerformer = bestPerformerThisGen;
+        }
+        else if(currentBestPerformer.getPerformance() < bestPerformerThisGen.getPerformance())
+        {
+            repeatedBestPerformer = 0;
+            currentBestPerformer = bestPerformerThisGen;
+        }
+        else
+            repeatedBestPerformer++;
+        /*
+        System.out.println("Generation " + this.generationCount);
+        for(Character c : population)
+        	System.out.println("\t" +c.getPerformance());
+        */
+        System.out.println("Generation " + this.generationCount + "'s best: " + bestPerformerThisGen);
+        System.out.println("Generation " + this.generationCount + "'s worst: " +population.get(population.size()-1));
+        System.out.println("Current best is " +currentBestPerformer.getPerformance() +" seen " +repeatedBestPerformer +" times!\n");
+    }
+    
+    public void start(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten)
+    {
         generatePopulation(equipment);
         this.startTime = System.currentTimeMillis();
-        Mutator mutator = new Mutator((MutationType)this.values.get("MUTATION"), (Double)this.values.get("MUTATION_PROBABILITY"), this.equipment.get("helmets"),
-                                        this.equipment.get("armors"), this.equipment.get("gloves"),
-                                        this.equipment.get("boots"), this.equipment.get("weapons"));
-        List<Character> selected = new ArrayList<>();
+        Mutator mutator = new Mutator((MutationType)this.values.get("MUTATION"), (Double)this.values.get("MUTATION_PROBABILITY"),
+						        		this.equipment.get(EquipmentType.HELMET), this.equipment.get(EquipmentType.ARMOR),
+						                this.equipment.get(EquipmentType.GLOVES), this.equipment.get(EquipmentType.BOOTS),
+						                this.equipment.get(EquipmentType.WEAPON));
+        List<Character> selected;
         List<Character> children;
         System.out.println("Running algorithm...");
         Double a = (Double)this.values.get("PARENT_SELECTION_A");
         Double b = (Double)this.values.get("INDIV_SELECTION_B");
-        Double crossoverProbability = (Double)this.values.get("CROSSOVER_PERCENTAGE");
-        int selectedWithMethod1 = (int)(crossoverProbability * (Long)this.values.get("K"));
+        int selectedWithMethod1 = (int)(a * (Long)this.values.get("K"));
         int selectedWithMethod2 = (int)((Long)this.values.get("K") - selectedWithMethod1);
+        System.out.println("Selection will go as " +selectedWithMethod1 +" / " +selectedWithMethod2);
         Double mutationProbability = (Double)this.values.get("MUTATION_PROBABILITY");
-        List<Point> points = new ArrayList<>();
-        while(runnable()) {
+        
+        while(searchActive())
+        {
+        	analyzeGeneration(generationCount, population);
+        	
+            // Choose our future parents!
             selected = new ArrayList<>();
             selected.addAll(selectFromPopulation("SELECTION_METHOD_1", selectedWithMethod1));
             List<Character> subpopulation = new ArrayList<>(this.population);
-            subpopulation.removeAll(selected);
             selected.addAll(selectFromSubPopulation(subpopulation,"SELECTION_METHOD_2", selectedWithMethod2));
-            children = generateCrossover(selected);
-            performReplacement(children);
-            this.population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
-            Character bestPerformer = this.population.get(0);
-            if(this.currentBestPerformer == bestPerformer)
-                this.repeatedBestPerformer++;
-            else {
-                this.repeatedBestPerformer = 0;
-                this.currentBestPerformer = bestPerformer;
+
+            // Register data for this generation!
+            reproduced.put(generationCount, new HashSet<>());
+            forgotten.put(generationCount, new HashSet<>());
+            for(Character c : population)
+            {
+            	if(!selected.contains(c))
+                    forgotten.get(generationCount).add(c);
             }
-            System.out.println("Generation " + this.generationCount + "'s best: " + bestPerformer);
-            Point point = new Point(generationCount, bestPerformer.getPerformance());
-            points.add(point);
-            this.generationCount++;
+            
+            // Get our next generation and register who had children
+            children = generateCrossover(selected, mutator);
+            if(selected.size() % 2 != 0)
+            	forgotten.get(generationCount).add(selected.get(selected.size()-1));
+            for(int i=0; i < (selected.size() - (selected.size()%2)); i++)
+            	reproduced.get(generationCount).add(selected.get(i));
+
+            // Prepare for the next generation!
+            performReplacement(children);
+            generationCount++;
         }
-        this.population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
-        Character bestPerformer = this.population.get(0);
-        System.out.println("Final best: " + bestPerformer);
-        return points;
+        System.out.println("Final best: " +currentBestPerformer);
     }
 
 }

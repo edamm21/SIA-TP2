@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,11 +11,16 @@ public class PopulationFilter {
 	
 	public static List<Character> eliteSelection(List<Character> population, int selected)
 	{
-		population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
+		if(selected <= 0)
+			return Collections.emptyList();
+		List<Character> candidates = new ArrayList<>(population);
+		while(candidates.size() < selected)
+			candidates.addAll(population);
+		candidates.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
 		List<Character> list = new ArrayList<>();
 		for(int i=0; i < selected; i++)
 		{
-			list.add(population.get(i));
+			list.add(candidates.get(i));
 		}
 		return list;
 	}
@@ -32,6 +38,9 @@ public class PopulationFilter {
 
 	private static List<Character> performanceRoulette(List<Character> population, int selected, boolean universal)
 	{
+		if(selected <= 0)
+			return Collections.emptyList();
+		
 		// Calculate relative performance (p) and acum relative performances (q)
 		double totalPerformance = 0;
 		double[] p = new double[population.size()];
@@ -43,7 +52,7 @@ public class PopulationFilter {
 			p[i] = population.get(i).getPerformance() / totalPerformance;
 			q[i] = 0;
 			for(int j=0; j <= i; j++)
-				q[i] += p[i];
+				q[i] += p[j];
 		}
 		
 		// For Roulette:
@@ -55,6 +64,7 @@ public class PopulationFilter {
 		double[] r = new double[selected];
 		List<Character> list = new ArrayList<>();
 		double seed = Math.random();
+
 		for(int j=0; j < selected; j++)
 		{
 			if(universal)
@@ -63,7 +73,9 @@ public class PopulationFilter {
 				r[j] = Math.random();		// Roulette
 			
 			if(r[j] <= q[0])
+			{
 				list.add(population.get(0));
+			}
 			else for(int i=1; i < q.length; i++)
 			{
 				if(q[i-1] < r[j] && r[j] <= q[i])
@@ -78,6 +90,8 @@ public class PopulationFilter {
 	
 	public static List<Character> rankSelection(List<Character> population, int selected)
 	{
+		if(selected <= 0)
+			return Collections.emptyList();
 		population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
 		double f[] = new double[population.size()];
 		for(int i=0; i < population.size(); i++)
@@ -121,6 +135,8 @@ public class PopulationFilter {
 
 	public static List<Character> deterministicTourneySelection(List<Character> population, int selected, int contestants)
 	{
+		if(selected <= 0)
+			return Collections.emptyList();
 		List<Character> list = new ArrayList<>();
 		Set<Character> tournament = new HashSet<>();
 		Character currentWinner = null;
@@ -150,6 +166,8 @@ public class PopulationFilter {
 	
 	public static List<Character> probabilisticTourneySelection(List<Character> population, int selected)
 	{
+		if(selected <= 0)
+			return Collections.emptyList();
 		List<Character> list = new ArrayList<>();
 		Character challengerA = null;
 		Character challengerB = null;
@@ -198,8 +216,10 @@ public class PopulationFilter {
 		return To * Math.exp(-K*t);
 	}
 	
-	public static List<Character> boltzMannSelection(List<Character> population, int selected, int generation)
+	public static List<Character> boltzmannSelection(List<Character> population, int selected, int generation)
 	{
+		if(selected <= 0)
+			return Collections.emptyList();
 		double expVal[] = new double[population.size()];
 		for(int i=0; i < population.size(); i++)
 			expVal[i] = expVal(population.get(i), population, T(generation, INITIAL_TEMPERATURE));
@@ -215,7 +235,7 @@ public class PopulationFilter {
 			p[i] = expVal[i] / totalPerformance;
 			q[i] = 0;
 			for(int j=0; j <= i; j++)
-				q[i] += p[i];
+				q[i] += p[j];
 		}
 		
 		double[] r = new double[selected];

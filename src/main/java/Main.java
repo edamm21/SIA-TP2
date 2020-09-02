@@ -1,18 +1,29 @@
-import java.awt.*;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import Enums.*;
-import Exceptions.*;
-import dataModels.DPoint;
-import graph.SimpleGraph;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import Enums.CharacterType;
+import Enums.CrossoverType;
+import Enums.EquipmentType;
+import Enums.ImplementationType;
+import Enums.MutationType;
+import Enums.SelectionType;
+import Enums.StopType;
+import Exceptions.InvalidArgument;
+import graph.SimpleGraph;
 
 public class Main {
 	
@@ -139,8 +150,6 @@ public class Main {
             throw new InvalidArgument("Individual selection");
         if((Double)values.get("MUTATION_PROBABILITY") < 0.0 || (Double)values.get("MUTATION_PROBABILITY") > 1.0)
             throw new InvalidArgument("Mutation probability");
-        if((Double)values.get("CROSSOVER_PERCENTAGE") < 0.0 || (Double)values.get("CROSSOVER_PERCENTAGE") > 1.0)
-            throw new InvalidArgument("Crossover percentage");
         if((values.get("TOURNAMENT_M") != null && values.get("K") != null) && ((Long)values.get("TOURNAMENT_M") > (Long)values.get("K") ||
                                                                                 (Long)values.get("TOURNAMENT_M") < 0 || (Long)values.get("K") < 0))
             throw new InvalidArgument("Tournament M");
@@ -179,6 +188,39 @@ public class Main {
         }
     }
     
+    private static SimpleGraph setupGraph(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten)
+    {
+    	List<Point> repPoints = new LinkedList<>();
+    	List<Point> forgPoints = new LinkedList<>();
+        int X = Math.max(reproduced.size(), forgotten.size());
+        double topY = 0;
+        for(Integer gen : reproduced.keySet())
+        {
+        	for(Character c : reproduced.get(gen))
+        	{
+        		repPoints.add(new Point(gen, c.getPerformance()));
+                if(c.getPerformance() > topY)
+                	topY = c.getPerformance();
+        	}
+        }
+        for(Integer gen : forgotten.keySet())
+        {
+        	for(Character c : forgotten.get(gen))
+        	{
+        		forgPoints.add(new Point(gen, c.getPerformance()));
+                if(c.getPerformance() > topY)
+                	topY = c.getPerformance();
+        	}
+        }
+    	
+    	SimpleGraph graph = new SimpleGraph(X + 10, topY+10, 1, 0.5);
+    	for(Point p : forgPoints)
+    		graph.addPoint(p.getX(), p.getY(), Color.BLACK);
+    	for(Point p : repPoints)
+    		graph.addPoint(p.getX(), p.getY(), Color.GREEN);
+    	return graph;
+    }
+    
     public static void main(String[] args)
     {
     	// Read JSON input
@@ -191,27 +233,29 @@ public class Main {
             System.out.println("Exiting...");
     	    return;
         }
-        Map<String, List<Equipment>> equipment = new HashMap<>();
-        equipment.put("helmets", new ArrayList<>());
-        equipment.put("armors", new ArrayList<>());
-        equipment.put("gloves", new ArrayList<>());
-        equipment.put("boots", new ArrayList<>());
-        equipment.put("weapons", new ArrayList<>());
+        Map<EquipmentType, List<Equipment>> equipment = new HashMap<>();
+        equipment.put(EquipmentType.HELMET, new ArrayList<>());
+        equipment.put(EquipmentType.ARMOR, new ArrayList<>());
+        equipment.put(EquipmentType.GLOVES, new ArrayList<>());
+        equipment.put(EquipmentType.BOOTS, new ArrayList<>());
+        equipment.put(EquipmentType.WEAPON, new ArrayList<>());
     	
     	// Import equipment database
     	System.out.println("\nImporting equipment, please wait...");
-    	loadEquipment(equipment.get("helmets"), "fulldata/cascos.tsv", EquipmentType.HELMET);
-    	loadEquipment(equipment.get("armors"), "fulldata/pecheras.tsv", EquipmentType.ARMOR);
-    	loadEquipment(equipment.get("gloves"), "fulldata/guantes.tsv", EquipmentType.GLOVES);
-    	loadEquipment(equipment.get("boots"), "fulldata/botas.tsv", EquipmentType.BOOTS);
-    	loadEquipment(equipment.get("weapons"), "fulldata/armas.tsv", EquipmentType.WEAPON);
+    	loadEquipment(equipment.get(EquipmentType.HELMET), "fulldata/cascos.tsv", EquipmentType.HELMET);
+    	loadEquipment(equipment.get(EquipmentType.ARMOR), "fulldata/pecheras.tsv", EquipmentType.ARMOR);
+    	loadEquipment(equipment.get(EquipmentType.GLOVES), "fulldata/guantes.tsv", EquipmentType.GLOVES);
+    	loadEquipment(equipment.get(EquipmentType.BOOTS), "fulldata/botas.tsv", EquipmentType.BOOTS);
+    	loadEquipment(equipment.get(EquipmentType.WEAPON), "fulldata/armas.tsv", EquipmentType.WEAPON);
 
+    	// Run the algorithm
     	GeneticAlgorithm ga = new GeneticAlgorithm(values, equipment);
-        List<Point> points = ga.start();
-        SimpleGraph graph = new SimpleGraph(points.size(), points.get(0).getY() + 10, 1, 0.25);
-        for(Point point : points) {
-            graph.addPoint(point.getX(), point.getY());
-        }
+    	Map<Integer, Set<Character>> reproduced = new HashMap<>();
+    	Map<Integer, Set<Character>> forgotten = new HashMap<>();
+        ga.start(reproduced, forgotten);
+        
+        // Our maps contain the info to create the graph
+        SimpleGraph graph = setupGraph(reproduced, forgotten);
         graph.display();
     }
 }

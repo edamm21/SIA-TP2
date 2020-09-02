@@ -48,4 +48,15 @@ public class Equipment {
                 " HP: " + this.health + " RES: " + this.resistance +
                 " SKL: " + this.skill + " STR: " + this.strength;
     }
+    
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Equipment)
+		{
+			Equipment b = (Equipment) o;
+			return type.equals(b.getType()) && strength == b.getStrength() && agility == b.getAgility() && resistance == b.getResistance() && health == b.getHealth() && skill == b.getSkill();
+		}
+		return false;
+	}
 }

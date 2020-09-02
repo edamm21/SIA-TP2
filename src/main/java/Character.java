@@ -149,4 +149,16 @@ public abstract class Character
 	{
 		return "Performance\t" + getPerformance();
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Character)
+		{
+			Character b = (Character) o;
+			return this.height == b.getHeight() && this.helmet.equals(b.getHelmet()) && this.armor.equals(b.getArmor())
+					&& this.gloves.equals(b.getGloves()) && this.boots.equals(b.getBoots()) && this.weapon.equals(b.getWeapon());
+		}
+		return false;
+	}
 }
