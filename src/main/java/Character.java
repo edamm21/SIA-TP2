@@ -17,7 +17,18 @@ public abstract class Character
 		this.boots = boots;
 		this.weapon = weapon;
 	}
-	
+
+	public abstract String getType();
+
+	@Override
+	public int hashCode() {
+		return Double.hashCode(getHeight()) + getHelmet().hashCode() + getArmor().hashCode() + getGloves().hashCode() + getBoots().hashCode() + getWeapon().hashCode();
+	}
+
+	public Equipment[] getAllEquipment() {
+		return new Equipment[]{getHelmet(), getArmor(), getGloves(), getBoots(), getWeapon()};
+	}
+
 	public double getStrength()
 	{
 		double sum = 0;

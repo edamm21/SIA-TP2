@@ -3,14 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -259,7 +252,7 @@ public class Main {
         ga.start(reproduced, forgotten);
         
         // Our maps contain the info to create the graph
-        SimpleGraph graph = setupGraph(reproduced, forgotten);
-        graph.display();
+        //SimpleGraph graph = setupGraph(reproduced, forgotten);
+        //graph.display();
     }
 }

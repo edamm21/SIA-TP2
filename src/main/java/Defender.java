@@ -4,6 +4,11 @@ public class Defender extends Character
 		super(height, helmet, armor, gloves, boots, weapon);
 	}
 
+	@Override
+	public String getType() {
+		return "Defensor";
+	}
+
 	public double getPerformance(){
 		return 0.8*getAttack() + 0.3*getDefense();
 	}

@@ -1,10 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+
 import Enums.CharacterType;
 import Enums.CrossoverType;
 import Enums.EquipmentType;
@@ -24,13 +19,41 @@ public class GeneticAlgorithm {
     private List<Character> population;
     private Character currentBestPerformer;
     private int repeatedBestPerformer;
+    private int repeatedMostCommonGenes;
+    private Integer currentMostCommonGenes;
+    private Equipment[] bestEquipmentFromDataset = new Equipment[5];
 
     public GeneticAlgorithm(Map<String, Object> chosenValues, Map<EquipmentType, List<Equipment>> equipment) {
         this.values = chosenValues;
         this.equipment = equipment;
         this.generationCount = 0;
         this.repeatedBestPerformer = 0;
+        this.repeatedMostCommonGenes = 0;
+        this.currentMostCommonGenes = null;
         this.currentBestPerformer = null;
+    }
+
+    private Integer getMostCommonGenes() {
+        Map<Integer, Integer> genesByAmount = new HashMap<>();
+        for(Character c : this.population) {
+            if(genesByAmount.containsKey(c.hashCode())) {
+                Integer current = genesByAmount.get(c.hashCode());
+                genesByAmount.put(c.hashCode(), current + 1);
+            } else {
+               genesByAmount.put(c.hashCode(), 1);
+            }
+        }
+        Map.Entry<Integer, Integer> max = null;
+        for(Map.Entry<Integer, Integer> e : genesByAmount.entrySet()) {
+            if(max == null || e.getValue() > max.getValue())
+                max = e;
+        }
+        System.out.println("max: " + max.getValue());
+        System.out.println("%: " + (double)max.getValue() / (double)this.population.size());
+        if((double)max.getValue() / this.population.size() > 0.6)
+            return max.getKey();
+        else
+            return -1;
     }
 
     private boolean searchActive() {
@@ -38,10 +61,11 @@ public class GeneticAlgorithm {
         switch ((StopType)this.values.get("STOP")) {
             case GENERATIONS:
                 return this.generationCount <= factor;
-            case STRUCTURE:
-                // TODO
-            case SOLUTION:
-                // TODO
+            case STRUCTURE:// una parte relevante de la poblacion no cambia una cantidad de generaciones
+                // busco cuales son los genes mas repetidos en la poblacion
+                return this.repeatedMostCommonGenes < factor;
+            case SOLUTION: // solucion aceptable
+                return this.currentBestPerformer.getPerformance() < factor;
             case CONTENT:
                 return this.repeatedBestPerformer < factor;
             case TIME:
@@ -51,6 +75,7 @@ public class GeneticAlgorithm {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void generatePopulation(Map<EquipmentType, List<Equipment>> equipment) {
         int count = 0;
         this.population = new ArrayList<>();
@@ -68,7 +93,13 @@ public class GeneticAlgorithm {
             Equipment gloves = equipment.get(EquipmentType.GLOVES).get(randomGloves);
             Equipment boots = equipment.get(EquipmentType.BOOTS).get(randomBoots);
             Equipment weapon = equipment.get(EquipmentType.WEAPON).get(randomWeapon);
-            
+
+            bestEquipmentFromDataset[0] = Collections.max(equipment.get(EquipmentType.HELMET));
+            bestEquipmentFromDataset[1] = Collections.max(equipment.get(EquipmentType.ARMOR));
+            bestEquipmentFromDataset[2] = Collections.max(equipment.get(EquipmentType.GLOVES));
+            bestEquipmentFromDataset[3] = Collections.max(equipment.get(EquipmentType.BOOTS));
+            bestEquipmentFromDataset[4] = Collections.max(equipment.get(EquipmentType.WEAPON));
+
             switch ((CharacterType)this.values.get("CHARACTER")) {
                 case SPY:
                     this.population.add(new Spy(randomHeight, helmet, armor, gloves, boots, weapon));
@@ -127,7 +158,7 @@ public class GeneticAlgorithm {
             Character parent1 = selected.get(i);
             Character parent2 = selected.get(i+1);
             i++;
-            System.out.println("\t" +parent1.getPerformance() +"\t<3\t" +parent2.getPerformance());
+            //System.out.println("\t" +parent1.getPerformance() +"\t<3\t" +parent2.getPerformance());
             Random random = new Random();
             switch ((CrossoverType) this.values.get("CROSSOVER"))
             {
@@ -204,12 +235,15 @@ public class GeneticAlgorithm {
         }
     }
 
-    private void analyzeGeneration(int generation, List<Character> population)
+    private void analyzeGeneration(int generation, List<Character> population, Plotter plotter)
     {
         population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
+        int size = population.size();
         Character bestPerformerThisGen = population.get(0);
-        if(currentBestPerformer == null)
-        {
+        Character avgPerformerThisGen = population.get(Math.round(size/2));
+        Character worstPerformerThisGen = population.get(size - 1);
+        Integer mostCommonGenesThisGeneration = getMostCommonGenes();
+        if(currentBestPerformer == null) {
         	currentBestPerformer = bestPerformerThisGen;
         }
         else if(currentBestPerformer.getPerformance() < bestPerformerThisGen.getPerformance())
@@ -219,19 +253,34 @@ public class GeneticAlgorithm {
         }
         else
             repeatedBestPerformer++;
-        /*
-        System.out.println("Generation " + this.generationCount);
-        for(Character c : population)
-        	System.out.println("\t" +c.getPerformance());
-        */
+        System.out.println("mostcommon this gen: " + mostCommonGenesThisGeneration);
+        System.out.println("count: " + repeatedMostCommonGenes);
+        if(!mostCommonGenesThisGeneration.equals(-1)) {
+            if (currentMostCommonGenes == null) {
+                currentMostCommonGenes = mostCommonGenesThisGeneration;
+            } else if (!currentMostCommonGenes.equals(mostCommonGenesThisGeneration)) {
+                this.repeatedMostCommonGenes = 0;
+                this.currentMostCommonGenes = mostCommonGenesThisGeneration;
+            } else {
+                this.repeatedMostCommonGenes++;
+            }
+        } else {
+            this.currentMostCommonGenes = null;
+        }
         System.out.println("Generation " + this.generationCount + "'s best: " + bestPerformerThisGen);
         System.out.println("Generation " + this.generationCount + "'s worst: " +population.get(population.size()-1));
         System.out.println("Current best is " +currentBestPerformer.getPerformance() +" seen " +repeatedBestPerformer +" times!\n");
+        plotter.replot(bestPerformerThisGen, worstPerformerThisGen, avgPerformerThisGen, generation);
     }
     
     public void start(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten)
     {
         generatePopulation(equipment);
+        this.population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
+        int size = this.population.size();
+        this.currentBestPerformer = this.population.get(0);
+        this.currentMostCommonGenes = getMostCommonGenes();
+        Plotter plotter = new Plotter(this.currentBestPerformer, this.population.get(size - 1), this.population.get(Math.round((size / 2))), 0);
         this.startTime = System.currentTimeMillis();
         Mutator mutator = new Mutator((MutationType)this.values.get("MUTATION"), (Double)this.values.get("MUTATION_PROBABILITY"),
 						        		this.equipment.get(EquipmentType.HELMET), this.equipment.get(EquipmentType.ARMOR),
@@ -246,7 +295,7 @@ public class GeneticAlgorithm {
         
         while(searchActive())
         {
-        	analyzeGeneration(generationCount, population);
+        	analyzeGeneration(generationCount, population, plotter);
         	
             // Choose our future parents!
             selected = new ArrayList<>();
@@ -273,8 +322,14 @@ public class GeneticAlgorithm {
             // Prepare for the next generation!
             performReplacement(children);
             generationCount++;
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         System.out.println("Final best: " +currentBestPerformer);
+        plotter.makeRadarChart(currentBestPerformer, bestEquipmentFromDataset);
     }
 
 }
