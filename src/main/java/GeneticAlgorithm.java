@@ -1,4 +1,12 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import Enums.CharacterType;
 import Enums.CrossoverType;
@@ -19,8 +27,7 @@ public class GeneticAlgorithm {
     private List<Character> population;
     private Character currentBestPerformer;
     private int repeatedBestPerformer;
-    private int repeatedMostCommonGenes;
-    private Integer currentMostCommonGenes;
+    private Map<Integer, List<Integer>> generationMembers;
     private Equipment[] bestEquipmentFromDataset = new Equipment[5];
 
     public GeneticAlgorithm(Map<String, Object> chosenValues, Map<EquipmentType, List<Equipment>> equipment) {
@@ -28,40 +35,32 @@ public class GeneticAlgorithm {
         this.equipment = equipment;
         this.generationCount = 0;
         this.repeatedBestPerformer = 0;
-        this.repeatedMostCommonGenes = 0;
-        this.currentMostCommonGenes = null;
         this.currentBestPerformer = null;
+        this.generationMembers = new HashMap<>();
     }
 
-    private Integer getMostCommonGenes() {
-        Map<Integer, Integer> genesByAmount = new HashMap<>();
-        for(Character c : this.population) {
-            if(genesByAmount.containsKey(c.hashCode())) {
-                Integer current = genesByAmount.get(c.hashCode());
-                genesByAmount.put(c.hashCode(), current + 1);
-            } else {
-               genesByAmount.put(c.hashCode(), 1);
-            }
-        }
-        Map.Entry<Integer, Integer> max = null;
-        for(Map.Entry<Integer, Integer> e : genesByAmount.entrySet()) {
-            if(max == null || e.getValue() > max.getValue())
-                max = e;
-        }
-        if((double)max.getValue() / this.population.size() > 0.6)
-            return max.getKey();
-        else
-            return -1;
+    // Returns how many from this generation didn't exist (offset) generations ago
+    private double getPopulationReplacementRate(int generation, long offset)
+    {
+    	if(generation - offset <= 0)
+    		return 1;
+    	List<Integer> current = new LinkedList<>(generationMembers.get(generation));
+    	for(int i = generation; i >= generation - offset; i--)
+    	{
+    		current.retainAll(generationMembers.get(i-1));
+    	}
+    	long N = (long)this.values.get("POPULATION");
+    	double repeatRate = (double)current.size() / N;
+    	return 1 - repeatRate;
     }
-
+    
     private boolean searchActive() {
         Long factor = (Long)values.get("FACTOR");
         switch ((StopType)this.values.get("STOP")) {
             case GENERATIONS:
                 return this.generationCount <= factor;
-            case STRUCTURE:// una parte relevante de la poblacion no cambia una cantidad de generaciones
-                // busco cuales son los genes mas repetidos en la poblacion
-                return this.repeatedMostCommonGenes < factor;
+            case STRUCTURE:// en las ultimas CONTENT_GENERATIONS, la población cambió un factor% o más
+                return getPopulationReplacementRate(generationCount-1, factor) > (double)values.get("REPLACEMENT_RATE");
             case SOLUTION: // solucion aceptable
                 return this.currentBestPerformer.getPerformance() < factor;
             case CONTENT:
@@ -150,13 +149,11 @@ public class GeneticAlgorithm {
         Collections.shuffle(selected);
         
         List<Character> children = new ArrayList<>();
-        System.out.println("Parents breeding:");
         for(int i=0; i < individualsToBreed; i++)
         {
             Character parent1 = selected.get(i);
             Character parent2 = selected.get(i+1);
             i++;
-            //System.out.println("\t" +parent1.getPerformance() +"\t<3\t" +parent2.getPerformance());
             Random random = new Random();
             switch ((CrossoverType) this.values.get("CROSSOVER"))
             {
@@ -235,12 +232,16 @@ public class GeneticAlgorithm {
 
     private void analyzeGeneration(int generation, List<Character> population, Plotter plotter)
     {
+    	List<Integer> members = new LinkedList<>();
+    	for(Character c : population)
+    		members.add(c.hashCode());
+    	generationMembers.put(generation, members);
+    	
         population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
         int size = population.size();
         Character bestPerformerThisGen = population.get(0);
         Character avgPerformerThisGen = population.get(Math.round(size/2));
         Character worstPerformerThisGen = population.get(size - 1);
-        Integer mostCommonGenesThisGeneration = getMostCommonGenes();
         if(currentBestPerformer == null) {
         	currentBestPerformer = bestPerformerThisGen;
         }
@@ -251,21 +252,10 @@ public class GeneticAlgorithm {
         }
         else
             repeatedBestPerformer++;
-        if(!mostCommonGenesThisGeneration.equals(-1)) {
-            if (currentMostCommonGenes == null) {
-                currentMostCommonGenes = mostCommonGenesThisGeneration;
-            } else if (!currentMostCommonGenes.equals(mostCommonGenesThisGeneration)) {
-                this.repeatedMostCommonGenes = 0;
-                this.currentMostCommonGenes = mostCommonGenesThisGeneration;
-            } else {
-                this.repeatedMostCommonGenes++;
-            }
-        } else {
-            this.currentMostCommonGenes = null;
-        }
+
         System.out.println("Generation " + this.generationCount + "'s best: " + bestPerformerThisGen);
         System.out.println("Generation " + this.generationCount + "'s worst: " +population.get(population.size()-1));
-        System.out.println("Current best is " +currentBestPerformer.getPerformance() +" seen " +repeatedBestPerformer +" times!\n");
+        System.out.println("Current best is " +currentBestPerformer.getPerformance() +" seen " +repeatedBestPerformer +" generations in a row!\n");
         plotter.replot(bestPerformerThisGen, worstPerformerThisGen, avgPerformerThisGen, generation);
     }
     
@@ -275,7 +265,6 @@ public class GeneticAlgorithm {
         this.population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
         int size = this.population.size();
         this.currentBestPerformer = this.population.get(0);
-        this.currentMostCommonGenes = getMostCommonGenes();
         Plotter plotter = new Plotter(this.currentBestPerformer, this.population.get(size - 1), this.population.get(Math.round((size / 2))), 0);
         this.startTime = System.currentTimeMillis();
         Mutator mutator = new Mutator((MutationType)this.values.get("MUTATION"), (Double)this.values.get("MUTATION_PROBABILITY"),

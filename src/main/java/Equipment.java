@@ -72,4 +72,16 @@ public class Equipment implements Comparable{
         double sum2 = other.getStrength() + other.getAgility() + other.getHealth() + other.getResistance() + other.getSkill();
         return Double.compare(sum1, sum2);
     }
+    
+	@Override
+	public int hashCode() {
+		int hash = 7;
+	    hash = 31 * hash + Double.hashCode(strength);
+	    hash = 31 * hash + Double.hashCode(agility);
+	    hash = 31 * hash + Double.hashCode(resistance);
+	    hash = 31 * hash + Double.hashCode(health);
+	    hash = 31 * hash + Double.hashCode(skill);
+	    hash = 31 * hash + type.hashCode();
+	    return hash;
+	}
 }

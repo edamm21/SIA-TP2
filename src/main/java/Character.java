@@ -22,7 +22,14 @@ public abstract class Character
 
 	@Override
 	public int hashCode() {
-		return Double.hashCode(getHeight()) + getHelmet().hashCode() + getArmor().hashCode() + getGloves().hashCode() + getBoots().hashCode() + getWeapon().hashCode();
+		int hash = 7;
+	    hash = 31 * hash + Double.hashCode(getHeight());
+	    hash = 31 * hash + getHelmet().hashCode();
+	    hash = 31 * hash + getArmor().hashCode();
+	    hash = 31 * hash + getGloves().hashCode();
+	    hash = 31 * hash + getBoots().hashCode();
+	    hash = 31 * hash + getWeapon().hashCode();
+	    return hash;
 	}
 
 	public Equipment[] getAllEquipment() {
