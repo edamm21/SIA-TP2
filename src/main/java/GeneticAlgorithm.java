@@ -48,8 +48,6 @@ public class GeneticAlgorithm {
             if(max == null || e.getValue() > max.getValue())
                 max = e;
         }
-        System.out.println("max: " + max.getValue());
-        System.out.println("%: " + (double)max.getValue() / (double)this.population.size());
         if((double)max.getValue() / this.population.size() > 0.6)
             return max.getKey();
         else
@@ -253,8 +251,6 @@ public class GeneticAlgorithm {
         }
         else
             repeatedBestPerformer++;
-        System.out.println("mostcommon this gen: " + mostCommonGenesThisGeneration);
-        System.out.println("count: " + repeatedMostCommonGenes);
         if(!mostCommonGenesThisGeneration.equals(-1)) {
             if (currentMostCommonGenes == null) {
                 currentMostCommonGenes = mostCommonGenesThisGeneration;
