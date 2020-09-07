@@ -1,4 +1,10 @@
 # SIA TP2
+## Instrucciones de ejecución
+#### Estando en el directorio raíz ejecutar los siguientes comandos:
+```javascript
+mvn clean package
+java -jar target/TP2-1.0-SNAPSHOT.jar
+```
 
 ## Instrucciones de configuración:
 ###### Configuraciones recomendadas
@@ -63,18 +69,3 @@
 |      REPLACEMENT_RATE      |               [0.0 - 1.0] (solo para STOP = STRUCTURE)              |                                                                      Determina la tasa de reemplazo mínima para seguir iterando                                                                     |
 |                            |                                                                     |                                                                                                                                                                                                     |
 
-## Instrucciones de ejecución
-
-#### Estando en el directorio raíz ejecutar los siguientes comandos:
-MacOS:
-```javascript
-java -jar out/artifacts/TP2_jar/TP2.jar
-```
-Linux:
-```javascript
-java -jar out/artifacts/TP2_jar/TP2.jar
-```
-Windows:
-```javascript
-java -jar out/artifacts/TP2_jar/TP2.jar
-```
