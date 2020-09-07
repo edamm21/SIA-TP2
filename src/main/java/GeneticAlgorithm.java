@@ -59,7 +59,7 @@ public class GeneticAlgorithm {
         switch ((StopType)this.values.get("STOP")) {
             case GENERATIONS:
                 return this.generationCount <= factor;
-            case STRUCTURE:// en las ultimas CONTENT_GENERATIONS, la población cambió un factor% o más
+            case STRUCTURE:// en las ultimas CONTENT_GENERATIONS, la poblaciï¿½n cambiï¿½ un factor% o mï¿½s
                 return getPopulationReplacementRate(generationCount-1, factor) > (double)values.get("REPLACEMENT_RATE");
             case SOLUTION: // solucion aceptable
                 return this.currentBestPerformer.getPerformance() < factor;
@@ -255,7 +255,7 @@ public class GeneticAlgorithm {
 
         System.out.println("Generation " + this.generationCount + "'s best: " + bestPerformerThisGen);
         System.out.println("Generation " + this.generationCount + "'s worst: " +population.get(population.size()-1));
-        System.out.println("Current best is " +currentBestPerformer.getPerformance() +" seen " +repeatedBestPerformer +" generations in a row!\n");
+        System.out.println("Current best is " +currentBestPerformer.getPerformance() +", for " +repeatedBestPerformer +" generations in a row now!\n");
         plotter.replot(bestPerformerThisGen, worstPerformerThisGen, avgPerformerThisGen, generation);
     }
     

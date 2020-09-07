@@ -238,12 +238,17 @@ public class Main {
         equipment.put(EquipmentType.WEAPON, new ArrayList<>());
     	
     	// Import equipment database
-    	System.out.println("\nImporting equipment, please wait...");
+    	System.out.print("\nImporting equipment, please wait...");
     	loadEquipment(equipment.get(EquipmentType.HELMET), "fulldata/cascos.tsv", EquipmentType.HELMET);
+    	System.out.print(".");
     	loadEquipment(equipment.get(EquipmentType.ARMOR), "fulldata/pecheras.tsv", EquipmentType.ARMOR);
+    	System.out.print(".");
     	loadEquipment(equipment.get(EquipmentType.GLOVES), "fulldata/guantes.tsv", EquipmentType.GLOVES);
+    	System.out.print(".");
     	loadEquipment(equipment.get(EquipmentType.BOOTS), "fulldata/botas.tsv", EquipmentType.BOOTS);
+    	System.out.print(".");
     	loadEquipment(equipment.get(EquipmentType.WEAPON), "fulldata/armas.tsv", EquipmentType.WEAPON);
+    	System.out.println(".");
 
     	// Run the algorithm
     	GeneticAlgorithm ga = new GeneticAlgorithm(values, equipment);
