@@ -216,4 +216,6 @@ public class Main {
     	Map<Integer, Set<Character>> forgotten = new HashMap<>();
         ga.start(reproduced, forgotten);
     }
+
+
 }

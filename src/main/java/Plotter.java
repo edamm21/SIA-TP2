@@ -1,9 +1,12 @@
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
-import java.util.ArrayList;
+
+import java.awt.*;
+import java.util.*;
 import java.util.List;
 
 public class Plotter {
+    private static final int BUBBLE_SIZE = 10;
     private final int PLAYER_EQUIPMENT = 5;
     private List<Double> bestPerformersPerGeneration = new ArrayList<>();
     private List<Double> worstPerformersPerGeneration = new ArrayList<>();
@@ -13,6 +16,7 @@ public class Plotter {
     private SwingWrapper<XYChart> wrapper;
     private RadarChart radarChart;
     private SwingWrapper<RadarChart> radarWrapper;
+
 
     public Plotter(Character bestPerformer, Character worstPerformer, Character avgPerformer, int generation) {
         this.generations.add((double)generation);
@@ -67,5 +71,40 @@ public class Plotter {
         this.radarChart.addSeries("Equipamiento", normalizedValues);
         this.radarWrapper = new SwingWrapper<RadarChart>(this.radarChart);
         this.radarWrapper.displayChart();
+    }
+
+    private List<Double> getPerformances(Set<Character> characters) {
+        List<Double> performances = new ArrayList<>();
+        for (Character character : characters) {
+            performances.add(character.getPerformance());
+        }
+        return performances;
+    }
+
+    public void makeScatterChart(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten) {
+        BubbleChart chart = new BubbleChartBuilder().height(500).width(1000).title("Selección por generación").xAxisTitle("Generación").yAxisTitle("Selección").build();
+        chart.getStyler().setSeriesColors(new Color[]{Color.WHITE});
+        chart.getStyler().setSeriesLines(new BasicStroke[]{new BasicStroke()});
+        chart.getStyler().setLegendVisible(false);
+        for(Integer generation : forgotten.keySet()) {
+            List<Integer> xAxisData = Collections.nCopies(forgotten.get(generation).size(), generation);
+            List<Integer> bubbleData = Collections.nCopies(forgotten.get(generation).size(), BUBBLE_SIZE);
+            List<Double> performances = getPerformances(forgotten.get(generation));
+            BubbleSeries series;
+            if (performances.size() != 0) {
+                series = chart.addSeries("Forgotten" + generation, xAxisData, performances, bubbleData);
+                series.setFillColor(Color.RED);
+                series.setLineWidth(0);
+            }
+        }
+        for(Integer generation : reproduced.keySet()) {
+            List<Integer> xAxisData = Collections.nCopies(reproduced.get(generation).size(), generation);
+            List<Integer> bubbleData = Collections.nCopies(reproduced.get(generation).size(), BUBBLE_SIZE);
+            List<Double> performances = getPerformances(reproduced.get(generation));
+            BubbleSeries series = chart.addSeries("Reproduced " + generation, xAxisData, performances, bubbleData);
+            series.setFillColor(Color.BLUE);
+            series.setLineWidth(0);
+        }
+        new SwingWrapper<>(chart).displayChart();
     }
 }
