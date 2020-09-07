@@ -179,4 +179,16 @@ public abstract class Character
 		}
 		return false;
 	}
+	
+	public String getInformation()
+	{
+		String s = "HEIGHT\t" +height +"m\n";
+		s += helmet +"\n";
+		s += armor +"\n";
+		s += gloves +"\n";
+		s += boots +"\n";
+		s += weapon +"\n";
+		s += "\nTOTAL PERFORMANCE: " +getPerformance();
+		return s;
+	}
 }

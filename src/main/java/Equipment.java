@@ -48,9 +48,8 @@ public class Equipment implements Comparable{
 
     @Override
     public String toString() {
-        return this.type.toString() + " AG:" + this.agility +
-                " HP: " + this.health + " RES: " + this.resistance +
-                " SKL: " + this.skill + " STR: " + this.strength;
+        return this.type.toString() + "\tSTR: " + this.strength + "\tAG:" + this.agility +
+        		"\tSKL: " + this.skill + "\tRES: " + this.resistance +"\tHP: " + this.health;
     }
     
 	@Override

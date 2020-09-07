@@ -77,6 +77,7 @@ public class GeneticAlgorithm {
         int count = 0;
         this.population = new ArrayList<>();
         while(count < (Long)this.values.get("POPULATION")) {
+        	
             Random random = new Random();
             int randomHelmet = random.nextInt(equipment.get(EquipmentType.HELMET).size() - 1);
             int randomArmor = random.nextInt(equipment.get(EquipmentType.ARMOR).size() - 1);
@@ -90,7 +91,17 @@ public class GeneticAlgorithm {
             Equipment gloves = equipment.get(EquipmentType.GLOVES).get(randomGloves);
             Equipment boots = equipment.get(EquipmentType.BOOTS).get(randomBoots);
             Equipment weapon = equipment.get(EquipmentType.WEAPON).get(randomWeapon);
-
+			
+        	/*
+        	// USE THIS FOR A STATIC POPULATION
+            double randomHeight = 1.7;
+            Equipment helmet = equipment.get(EquipmentType.HELMET).get(count);
+            Equipment armor= equipment.get(EquipmentType.ARMOR).get(count);
+            Equipment gloves = equipment.get(EquipmentType.GLOVES).get(count);
+            Equipment boots = equipment.get(EquipmentType.BOOTS).get(count);
+            Equipment weapon = equipment.get(EquipmentType.WEAPON).get(count);
+            */
+        	
             bestEquipmentFromDataset[0] = Collections.max(equipment.get(EquipmentType.HELMET));
             bestEquipmentFromDataset[1] = Collections.max(equipment.get(EquipmentType.ARMOR));
             bestEquipmentFromDataset[2] = Collections.max(equipment.get(EquipmentType.GLOVES));
@@ -313,8 +324,7 @@ public class GeneticAlgorithm {
                 e.printStackTrace();
             }
         }
-        System.out.println("Final best: " +currentBestPerformer);
+        System.out.println("***RECOMMENDED BUILD***\n" +currentBestPerformer.getInformation());
         plotter.makeRadarChart(currentBestPerformer, bestEquipmentFromDataset);
     }
-
 }

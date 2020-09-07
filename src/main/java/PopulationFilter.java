@@ -150,17 +150,13 @@ public class PopulationFilter {
 			{
 				index = (int) (Math.random()*population.size());
 				challenger = population.get(index);
-				if(tournament.contains(challenger))
-					j--;	// Try again
-				else
-				{
-					tournament.add(challenger);
-					if(currentWinner == null || challenger.getPerformance() > currentWinner.getPerformance())
-						currentWinner = challenger;
-				}
+				tournament.add(challenger);
+				if(currentWinner == null || challenger.getPerformance() > currentWinner.getPerformance())
+					currentWinner = challenger;
 			}
 			list.add(currentWinner);
 		}
+		list.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance())); // Highest performance to lowest
 		return list;
 	}
 	
@@ -184,7 +180,6 @@ public class PopulationFilter {
 			challengerA = population.get(indexA);
 			challengerB = population.get(indexB);
 			r = Math.random();
-			
 			Awins = challengerA.getPerformance() > challengerB.getPerformance();
 			if(r < threshold)
 			{

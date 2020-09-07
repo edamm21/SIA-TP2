@@ -16,8 +16,6 @@ import Enums.StopType;
 import Exceptions.InvalidArgument;
 
 public class Main {
-	
-    private static final int INPUT_VALUE_COUNT = 11;
 
 	private static JSONObject readJSON()
 	{
@@ -41,8 +39,8 @@ public class Main {
 	}
 
     private static void parseInputData(JSONObject object, Map<String, Object> values) throws Exception{
-        Set keys = object.keySet();
-        Iterator it = keys.iterator();
+        Set<?> keys = object.keySet();
+        Iterator<?> it = keys.iterator();
         while(it.hasNext()) {
             String key = (String) it.next();
             values.put(key, object.get(key));
