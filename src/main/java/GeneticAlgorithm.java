@@ -307,7 +307,6 @@ public class GeneticAlgorithm {
             	if(!selected.contains(c))
                     forgotten.get(generationCount).add(c);
             }
-            
             // Get our next generation and register who had children
             children = generateCrossover(selected, mutator);
             if(selected.size() % 2 != 0)
@@ -326,5 +325,6 @@ public class GeneticAlgorithm {
         }
         System.out.println("***RECOMMENDED BUILD***\n" +currentBestPerformer.getInformation());
         plotter.makeRadarChart(currentBestPerformer, bestEquipmentFromDataset);
+        plotter.makeScatterChart(reproduced, forgotten);
     }
 }
