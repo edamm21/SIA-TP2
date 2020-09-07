@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,7 +6,6 @@ import java.util.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import Enums.CharacterType;
 import Enums.CrossoverType;
 import Enums.EquipmentType;
@@ -16,7 +14,6 @@ import Enums.MutationType;
 import Enums.SelectionType;
 import Enums.StopType;
 import Exceptions.InvalidArgument;
-import graph.SimpleGraph;
 
 public class Main {
 	
@@ -152,6 +149,7 @@ public class Main {
             throw new InvalidArgument("Population");
         if((Long)values.get("FACTOR") < 0)
             throw new InvalidArgument("Factor");
+
     }
     
     private static void loadEquipment(List<Equipment> list, String file, EquipmentType type) {
@@ -181,43 +179,6 @@ public class Main {
         }
     }
     
-    private static SimpleGraph setupGraph(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten)
-    {
-    	List<Point> repPoints = new LinkedList<>();
-    	List<Point> forgPoints = new LinkedList<>();
-    	List<Point> avgPoints = new LinkedList<>();
-        int X = Math.max(reproduced.size(), forgotten.size());
-        double topY = 0;
-        for(Integer gen : reproduced.keySet())
-        {
-        	double total = 0;
-        	for(Character c : reproduced.get(gen))
-        	{
-        		total += c.getPerformance();
-        		repPoints.add(new Point(gen, c.getPerformance()));
-                if(c.getPerformance() > topY)
-                	topY = c.getPerformance();
-        	}
-        	for(Character c : forgotten.get(gen))
-        	{
-        		total += c.getPerformance();
-        		forgPoints.add(new Point(gen, c.getPerformance()));
-                if(c.getPerformance() > topY)
-                	topY = c.getPerformance();
-        	}
-        	avgPoints.add(new Point(gen, total / (reproduced.get(gen).size() + forgotten.get(gen).size())));
-        }
-    	
-    	SimpleGraph graph = new SimpleGraph(X + 5, topY+10, 1, 0.5);
-    	for(Point p : forgPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.BLACK);
-    	for(Point p : repPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.GREEN);
-    	for(Point p : avgPoints)
-    		graph.addPoint(p.getX(), p.getY(), Color.RED);
-    	return graph;
-    }
-    
     public static void main(String[] args)
     {
     	// Read JSON input
@@ -239,15 +200,16 @@ public class Main {
     	
     	// Import equipment database
     	System.out.print("\nImporting equipment, please wait...");
-    	loadEquipment(equipment.get(EquipmentType.HELMET), "fulldata/cascos.tsv", EquipmentType.HELMET);
+        System.out.println((String)values.get("HELMETS_DATASET_PATH"));
+    	loadEquipment(equipment.get(EquipmentType.HELMET), (String)values.get("HELMETS_DATASET_PATH"), EquipmentType.HELMET);
     	System.out.print(".");
-    	loadEquipment(equipment.get(EquipmentType.ARMOR), "fulldata/pecheras.tsv", EquipmentType.ARMOR);
+    	loadEquipment(equipment.get(EquipmentType.ARMOR), (String)values.get("ARMOR_DATASET_PATH"), EquipmentType.ARMOR);
     	System.out.print(".");
-    	loadEquipment(equipment.get(EquipmentType.GLOVES), "fulldata/guantes.tsv", EquipmentType.GLOVES);
+    	loadEquipment(equipment.get(EquipmentType.GLOVES), (String)values.get("GLOVES_DATASET_PATH"), EquipmentType.GLOVES);
     	System.out.print(".");
-    	loadEquipment(equipment.get(EquipmentType.BOOTS), "fulldata/botas.tsv", EquipmentType.BOOTS);
+    	loadEquipment(equipment.get(EquipmentType.BOOTS), (String)values.get("BOOTS_DATASET_PATH"), EquipmentType.BOOTS);
     	System.out.print(".");
-    	loadEquipment(equipment.get(EquipmentType.WEAPON), "fulldata/armas.tsv", EquipmentType.WEAPON);
+    	loadEquipment(equipment.get(EquipmentType.WEAPON), (String)values.get("WEAPON_DATASET_PATH"), EquipmentType.WEAPON);
     	System.out.println(".");
 
     	// Run the algorithm
@@ -255,9 +217,5 @@ public class Main {
     	Map<Integer, Set<Character>> reproduced = new HashMap<>();
     	Map<Integer, Set<Character>> forgotten = new HashMap<>();
         ga.start(reproduced, forgotten);
-        
-        // Our maps contain the info to create the graph
-        //SimpleGraph graph = setupGraph(reproduced, forgotten);
-        //graph.display();
     }
 }

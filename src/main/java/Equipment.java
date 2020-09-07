@@ -1,5 +1,4 @@
 import Enums.EquipmentType;
-import sun.awt.EventQueueItem;
 
 public class Equipment implements Comparable{
 

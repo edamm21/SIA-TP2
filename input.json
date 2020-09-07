@@ -14,6 +14,11 @@
   "POPULATION": 1000,
   "K": 50,
   "MUTATION_PROBABILITY":0.01,
-  "TOURNAMENT_M": 10
-  "REPLACEMENT_RATE": 0.1
+  "TOURNAMENT_M": 10,
+  "REPLACEMENT_RATE": 0.1,
+  "WEAPON_DATASET_PATH": "fulldata/armas.tsv",
+  "BOOTS_DATASET_PATH": "fulldata/botas.tsv",
+  "HELMETS_DATASET_PATH": "fulldata/cascos.tsv",
+  "GLOVES_DATASET_PATH": "fulldata/guantes.tsv",
+  "ARMOR_DATASET_PATH": "fulldata/pecheras.tsv"
 }
