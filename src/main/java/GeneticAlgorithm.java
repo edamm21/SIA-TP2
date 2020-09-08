@@ -272,6 +272,7 @@ public class GeneticAlgorithm {
     
     public void start(Map<Integer, Set<Character>> reproduced, Map<Integer, Set<Character>> forgotten)
     {
+    	System.out.println("Creating random population...");
         generatePopulation(equipment);
         this.population.sort((Character p1, Character p2) -> Double.compare(p2.getPerformance(), p1.getPerformance()));
         int size = this.population.size();

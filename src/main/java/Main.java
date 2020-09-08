@@ -197,8 +197,7 @@ public class Main {
         equipment.put(EquipmentType.WEAPON, new ArrayList<>());
     	
     	// Import equipment database
-    	System.out.print("\nImporting equipment, please wait...");
-        System.out.println((String)values.get("HELMETS_DATASET_PATH"));
+    	System.out.print("Importing equipment, please wait...");
     	loadEquipment(equipment.get(EquipmentType.HELMET), (String)values.get("HELMETS_DATASET_PATH"), EquipmentType.HELMET);
     	System.out.print(".");
     	loadEquipment(equipment.get(EquipmentType.ARMOR), (String)values.get("ARMOR_DATASET_PATH"), EquipmentType.ARMOR);

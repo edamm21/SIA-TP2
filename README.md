@@ -7,10 +7,8 @@ java -jar target/TP2-1.0-SNAPSHOT.jar
 ```
 
 ## Instrucciones de configuración:
-###### Configuraciones recomendadas
-* Configuración 1:
 
-# Cómo utilizar el JSON
+#### Cómo utilizar el JSON
 
 ```javascript
 {
@@ -69,3 +67,87 @@ java -jar target/TP2-1.0-SNAPSHOT.jar
 |      REPLACEMENT_RATE      |               [0.0 - 1.0] (solo para STOP = STRUCTURE)              |                                                                      Determina la tasa de reemplazo mínima para seguir iterando                                                                     |
 |                            |                                                                     |                                                                                                                                                                                                     |
 
+## Configuraciones recomendadas
+* Configuración 1:
+```javascript
+{
+  "CHARACTER":"ARCHER",
+  "CROSSOVER":"SINGLE_POINT",
+  "MUTATION":"GENE",
+  "IMPLEMENTATION":"FILL_ALL",
+  "SELECTION_METHOD_1":"ELITE",
+  "SELECTION_METHOD_2":"DET_TOURNAMENT",
+  "SELECTION_METHOD_3":"ELITE",
+  "SELECTION_METHOD_4":"DET_TOURNAMENT",
+  "PARENT_SELECTION_A": 1.0,
+  "INDIV_SELECTION_B": 1.0,
+  "STOP":"GENERATIONS",
+  "FACTOR": 45,
+  "POPULATION": 1000,
+  "K": 50,
+  "MUTATION_PROBABILITY":0.0,
+  "TOURNAMENT_M": 10,
+  "REPLACEMENT_RATE": 0.1,
+  "WEAPON_DATASET_PATH": "data/armas.tsv",
+  "BOOTS_DATASET_PATH": "data/botas.tsv",
+  "HELMETS_DATASET_PATH": "data/cascos.tsv",
+  "GLOVES_DATASET_PATH": "data/guantes.tsv",
+  "ARMOR_DATASET_PATH": "data/pecheras.tsv"
+}
+```
+
+* Configuración 2:
+```javascript
+{
+  "CHARACTER":"SPY",
+  "CROSSOVER":"TWO_POINT",
+  "MUTATION":"COMPLETE",
+  "IMPLEMENTATION":"FILL_PARENT",
+  "SELECTION_METHOD_1":"ROULETTE",
+  "SELECTION_METHOD_2":"RANKING",
+  "SELECTION_METHOD_3":"ELITE",
+  "SELECTION_METHOD_4":"PROB_TOURNAMENT",
+  "PARENT_SELECTION_A": 0.7,
+  "INDIV_SELECTION_B": 0.8,
+  "STOP":"STRUCTURE",
+  "FACTOR": 10,
+  "POPULATION": 1000,
+  "K": 250,
+  "MUTATION_PROBABILITY":0.3,
+  "TOURNAMENT_M": 10,
+  "REPLACEMENT_RATE": 0.1,
+  "WEAPON_DATASET_PATH": "data/armas.tsv",
+  "BOOTS_DATASET_PATH": "data/botas.tsv",
+  "HELMETS_DATASET_PATH": "data/cascos.tsv",
+  "GLOVES_DATASET_PATH": "data/guantes.tsv",
+  "ARMOR_DATASET_PATH": "data/pecheras.tsv"
+}
+```
+
+* Configuración 3:
+```javascript
+{
+  "CHARACTER":"WARRIOR",
+  "CROSSOVER":"UNIFORM",
+  "MUTATION":"UNIFORM_MULTIGENE",
+  "IMPLEMENTATION":"FILL_PARENT",
+  "SELECTION_METHOD_1":"ROULETTE",
+  "SELECTION_METHOD_2":"RANKING",
+  "SELECTION_METHOD_3":"ELITE",
+  "SELECTION_METHOD_4":"ROULETTE",
+  "PARENT_SELECTION_A": 0.82,
+  "INDIV_SELECTION_B": 0.16,
+  "STOP":"CONTENT",
+  "FACTOR": 25,
+  "POPULATION": 2500,
+  "K": 500,
+  "MUTATION_PROBABILITY":0.6,
+  "TOURNAMENT_M": 4,
+  "REPLACEMENT_RATE": 0.1,
+  "WEAPON_DATASET_PATH": "data/armas.tsv",
+  "BOOTS_DATASET_PATH": "data/botas.tsv",
+  "HELMETS_DATASET_PATH": "data/cascos.tsv",
+  "GLOVES_DATASET_PATH": "data/guantes.tsv",
+  "ARMOR_DATASET_PATH": "data/pecheras.tsv"
+}
+```
